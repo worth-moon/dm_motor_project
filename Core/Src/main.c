@@ -204,7 +204,7 @@ int main(void)
 	distance2 = KLM(distance);
 	sprintf((char*)tx_buffer, (const char*)"distance:%2.2f,%2.2f\r\n", jd_pos, distance2);//卡尔曼滤波后的数据
 //	//sprintf((char*)tx_buffer,(const char*)"当前角度为%f,对应的距离是%f\r\n",jd_pos, distance);//卡尔曼滤波后的数据
-	
+	//终结
 	//CDC_Transmit_HS(tx_buffer,strlen((const char*)tx_buffer));
 	//HAL_UART_Transmit(&huart7,tx_buffer,strlen((const char*)tx_buffer),1000);
     /* USER CODE END WHILE */
