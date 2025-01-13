@@ -61,7 +61,8 @@ volatile float distance, distance2;
 uint8_t state;
 uint64_t error_count, success_count, error_count2;
 
-uint16_t adc_val[1];
+uint16_t adc_val[1]; 
+uint8_t tx_buffer[100] = "distance:99.99,99.99\r\n";
 
 //以下为卡尔曼滤波器参数
 float P = 1;
@@ -145,6 +146,7 @@ int main(void)
 	data[6] = 0xFF;
 	data[7] = 0xFC;
 
+	HAL_UART_Transmit_DMA(&huart7,tx_buffer,strlen((const char *)tx_buffer));
 //		// 开启LCD背光
 //	LCD_Init();//LCD初始化
 //	LCD_Fill(0,0,LCD_W, LCD_H,BLACK);	
@@ -185,24 +187,25 @@ int main(void)
 //		HAL_GPIO_WritePin(Trig_GPIO_Port,Trig_Pin,0);
 //		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
 		
-//	static uint8_t flag_exchange;
-//	if(flag_exchange)
-//	{
-//		speed_ctrl(&hfdcan1, 0x11, 0.0f);
-//		flag_exchange = 0;
-//	}
-//	else
-//	{
-//		flag_exchange = 1;
-//		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
-//	}
+	static uint8_t flag_exchange;
+	if(flag_exchange)
+	{
+		speed_ctrl(&hfdcan1, 0x11, 20.0f);
+		flag_exchange = 0;
+	}
+	else
+	{
+		flag_exchange = 1;
+		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
+	}
 	
 //	
-	uint8_t tx_buffer[100];
+	
 	distance2 = KLM(distance);
+	sprintf((char*)tx_buffer, (const char*)"distance:%2.2f,%2.2f\r\n", jd_pos, distance2);//卡尔曼滤波后的数据
 //	//sprintf((char*)tx_buffer,(const char*)"当前角度为%f,对应的距离是%f\r\n",jd_pos, distance);//卡尔曼滤波后的数据
-	sprintf((char*)tx_buffer,(const char*)"distance:%f,%f\r\n",distance, distance2);//卡尔曼滤波后的数据
-	CDC_Transmit_HS(tx_buffer,strlen((const char*)tx_buffer));
+	
+	//CDC_Transmit_HS(tx_buffer,strlen((const char*)tx_buffer));
 	//HAL_UART_Transmit(&huart7,tx_buffer,strlen((const char*)tx_buffer),1000);
     /* USER CODE END WHILE */
 
@@ -271,6 +274,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+//void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
+//{
+//	sprintf((char*)tx_buffer, (const char*)"distance:%f,%f\r\n", distance, distance2);//卡尔曼滤波后的数据
+//	HAL_UART_Transmit_DMA(&huart7, tx_buffer, strlen((const char*)tx_buffer));
+//}
+
 float KLM(float Z)
 {
 	X_ = X + 0;
