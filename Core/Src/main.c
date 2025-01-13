@@ -18,8 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "fdcan.h"
 #include "memorymap.h"
+#include "spi.h"
+#include "tim.h"
+#include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
@@ -28,6 +33,9 @@
 #include "can_bsp.h"
 #include "delay.h"
 #include "string.h"
+
+#include "lcd.h"
+#include "pic.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,9 +57,20 @@
 
 /* USER CODE BEGIN PV */
 extern float pos, jd_pos;
-volatile float distance;
+volatile float distance, distance2;
 uint8_t state;
 uint64_t error_count, success_count, error_count2;
+
+uint16_t adc_val[1];
+
+//以下为卡尔曼滤波器参数
+float P = 1;
+float P_;  //对应公式中的p'
+float X = 0;
+float X_;  //X'
+float K = 0;
+float Q = 0.01;//噪声
+float R = 0.2;  //R如果很大，更相信预测值，那么传感器反应就会迟钝，反之相反
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,6 +81,7 @@ extern uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len);
 void start_signal(void);
 void wait_echo(void);
 void compute_distance(void);
+float KLM(float Z);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -101,8 +121,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_FDCAN1_Init();
   MX_USB_DEVICE_Init();
+  MX_TIM3_Init();
+  MX_ADC1_Init();
+  MX_SPI1_Init();
+  MX_UART7_Init();
   /* USER CODE BEGIN 2 */
 	delay_init(480);
 	can_bsp_init();
@@ -120,49 +145,65 @@ int main(void)
 	data[6] = 0xFF;
 	data[7] = 0xFC;
 
-
+//		// 开启LCD背光
+//	LCD_Init();//LCD初始化
+//	LCD_Fill(0,0,LCD_W, LCD_H,BLACK);	
+//	
+//	HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);
+//	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_val,1);	// 读取ADC按键键值
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//		LCD_ShowString(120, 72,(uint8_t *)"dmBot", BRRED, BLACK, 24, 0);
+//		LCD_ShowChinese(84, 100, (uint8_t *)"达妙科技", WHITE, BLACK, 32, 0);
+//		LCD_DrawLine(10, 0, 10,  280,WHITE);
+//		LCD_DrawLine(270,0, 270, 280,WHITE);
+//		LCD_ShowIntNum(50, 170, (uint16_t)distance2, 5, WHITE, BLACK, 32);
+//		LCD_ShowPicture(180, 150, 80, 80, gImage_1);
 		
-		switch (state)
-	  {
-		  case 0:
-			  start_signal();//启动信号
-			  break;
-		  case 1:
-				//state = 2;
-			  wait_echo();
-			  break;
-		  case 2:
-			  compute_distance();
-			  break;
-		  default:
-			  state = 0;  
-	  }
+	switch (state)
+	{
+		case 0:
+			start_signal();//启动信号
+			break;
+		case 1:
+			//state = 2;
+			wait_echo();
+			break;
+		case 2:
+			compute_distance();
+			break;
+		default:
+			state = 0;  
+	}
 		
 //		HAL_GPIO_WritePin(Trig_GPIO_Port,Trig_Pin,1);
 //		speed_ctrl(&hfdcan1, 0x11, 2.0f);
 //		HAL_GPIO_WritePin(Trig_GPIO_Port,Trig_Pin,0);
 //		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
 		
-		static uint8_t flag_exchange;
-		if(flag_exchange)
-		{
-			speed_ctrl(&hfdcan1, 0x11, 2.0f);
-			flag_exchange = 0;
-		}
-		else
-		{
-			flag_exchange = 1;
-			fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
-		}
-		uint8_t tx_buffer[100];
-		sprintf((char*)tx_buffer,(const char*)"当前角度为%f,对应的距离是%f\r\n",jd_pos,distance);
-		CDC_Transmit_HS(tx_buffer,strlen((const char*)tx_buffer));
+//	static uint8_t flag_exchange;
+//	if(flag_exchange)
+//	{
+//		speed_ctrl(&hfdcan1, 0x11, 0.0f);
+//		flag_exchange = 0;
+//	}
+//	else
+//	{
+//		flag_exchange = 1;
+//		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
+//	}
+	
+//	
+	uint8_t tx_buffer[100];
+	distance2 = KLM(distance);
+//	//sprintf((char*)tx_buffer,(const char*)"当前角度为%f,对应的距离是%f\r\n",jd_pos, distance);//卡尔曼滤波后的数据
+	sprintf((char*)tx_buffer,(const char*)"distance:%f,%f\r\n",distance, distance2);//卡尔曼滤波后的数据
+	CDC_Transmit_HS(tx_buffer,strlen((const char*)tx_buffer));
+	//HAL_UART_Transmit(&huart7,tx_buffer,strlen((const char*)tx_buffer),1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -230,6 +271,16 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+float KLM(float Z)
+{
+	X_ = X + 0;
+	P_ = P + Q;
+	K = P_ / (P_ + R);
+	X = X_ + K * (Z - X_);
+	P = P_ - K * P_;
+	return X;
+}
+
 void start_signal(void)
 {
 	HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, 1);
@@ -240,7 +291,7 @@ void start_signal(void)
 
 void wait_echo(void)
 {
-	uint32_t delay_time = 5;
+	uint32_t delay_time = 50;
 	uint32_t start_time = HAL_GetTick();//ms级别的计时
 	uint32_t cur_time;
 	while (((cur_time = HAL_GetTick()) - start_time < delay_time) && (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin) == 0)) // 等待1ms，或是超声波响应

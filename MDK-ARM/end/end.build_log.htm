@@ -17,32 +17,34 @@ Library Manager: ArmAr.exe V5.06 update 7 (build 960)
 Hex Converter:   FromElf.exe V5.06 update 7 (build 960)
 CPU DLL:         SARMCM3.DLL V5.40.0.3
 Dialog DLL:      DCM.DLL V1.17.5.0
-Target DLL:      Segger\JL2CM3.dll V2.99.44.0
+Target DLL:      CMSIS_AGDI.dll V1.33.18.0
 Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
 E:\desktop\jig_leida\h7_new\end\end\MDK-ARM\end.uvprojx
-Project File Date:  01/07/2025
+Project File Date:  01/12/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'end'
 compiling main.c...
-../Core/Src/main.c(109): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(134): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);
-../Core/Src/main.c(110): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(135): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);
-../Core/Src/main.c(235): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(138): warning:  #550-D: variable "data"  was set but never used
+  	uint8_t data[8];
+../Core/Src/main.c(286): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, 1);
-../Core/Src/main.c(237): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(288): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, 0);
-../Core/Src/main.c(300): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(351): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   	distance = (float)echo_time * 0.17;
-../Core/Src/main.c: 5 warnings, 0 errors
+../Core/Src/main.c: 6 warnings, 0 errors
 linking...
-Program Size: Code=26576 RO-data=1064 RW-data=360 ZI-data=8972  
+Program Size: Code=39066 RO-data=1114 RW-data=392 ZI-data=9564  
 FromELF: creating hex file...
-"end\end.axf" - 0 Error(s), 5 Warning(s).
+"end\end.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -66,7 +68,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:10
+Build Time Elapsed:  00:00:17
 </pre>
 </body>
 </html>
