@@ -51,6 +51,7 @@
 "end\usbd_ctlreq.o"
 "end\usbd_ioreq.o"
 "end\usbd_cdc.o"
+"..\Drivers\CMSIS\DSP\Lib\ARM\arm_cortexM7lfdp_math.lib"
 --strict --scatter "end\end.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

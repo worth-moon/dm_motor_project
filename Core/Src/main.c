@@ -41,6 +41,8 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "math.h"
+
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -264,6 +266,9 @@ float test_fuzhi = -5.5;
 float cur_high, cur_len;
 
 uint64_t forward_count = 0, backward_count = 0;
+float dsp_sqrt_in, dsp_sqrt_out;
+float c2, c23, c234, s2, s23, s234;
+
 void robot_arm(float X, float Y)
 {
 
@@ -283,15 +288,23 @@ void robot_arm(float X, float Y)
         {
             for (J4 = 0; J4 < 3.14; J4 += bu_chang)
             {
+				
                 //cur_high = A1 + A2 * cos(J2) + A3 * cos(J3 + J2) + A4 * cos(J4 + J2 + J3);
                 //cur_len = A2 * sin(J2) + A3 * sin(J3 + J2) + A4 * sin(J4 + J2 + J3);
-				float c2 = cos(J2);
-				float c23 = cos(J2 + J3);
-				float c234 = cos(J2 + J3 + J4);
+				c2 = arm_cos_f32(J2);
+				c23 = arm_cos_f32(J2 + J3);
+				c234 = arm_cos_f32(J2 + J3 + J4);
 
-				float s2 = sqrt(1 - c2 * c2);
-				float s23 = sqrt(1 - c23 * c23);
-				float s234 = sqrt(1 - c234 * c234);
+				//float s2 = sqrt(1 - c2 * c2);
+				//float s23 = sqrt(1 - c23 * c23);
+				//float s234 = sqrt(1 - c234 * c234);
+
+				dsp_sqrt_in = 1 - c2 * c2;
+				arm_sqrt_f32(dsp_sqrt_in, &s2);
+				dsp_sqrt_in = 1 - c23 * c23;
+				arm_sqrt_f32(dsp_sqrt_in, &s23);
+				dsp_sqrt_in = 1 - c234 * c234;
+				arm_sqrt_f32(dsp_sqrt_in, &s234);
 
 
 				cur_high = A1 + A2 * c2 + A3 * c23 + A4 * c234;

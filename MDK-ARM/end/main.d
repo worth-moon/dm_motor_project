@@ -63,3 +63,5 @@ end\main.o: ../Core/Src/can_bsp.h
 end\main.o: ../Core/Src/delay.h
 end\main.o: ../Core/Inc/lcd.h
 end\main.o: ../Core/Inc/pic.h
+end\main.o: ..\Drivers\CMSIS\DSP\Include\arm_math.h
+end\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
