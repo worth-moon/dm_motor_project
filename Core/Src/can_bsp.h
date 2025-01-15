@@ -11,6 +11,6 @@ uint8_t fdcanx_send_data(FDCAN_HandleTypeDef *hfdcan, uint16_t id, uint8_t *data
 uint8_t fdcanx_receive(FDCAN_HandleTypeDef *hfdcan, uint16_t *rec_id, uint8_t *buf);
 void fdcan1_rx_callback(void);
 void speed_ctrl(hcan_t* hcan, uint16_t motor_id, float vel);
-
+void pos_speed_ctrl(hcan_t* hcan, uint16_t motor_id, float pos, float vel);
 #endif /* __CAN_BSP_H_ */
 

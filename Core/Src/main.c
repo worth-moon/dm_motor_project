@@ -146,67 +146,34 @@ int main(void)
 	data[6] = 0xFF;
 	data[7] = 0xFC;
 
-	HAL_UART_Transmit_DMA(&huart7,tx_buffer,strlen((const char *)tx_buffer));
-//		// 开启LCD背光
-//	LCD_Init();//LCD初始化
-//	LCD_Fill(0,0,LCD_W, LCD_H,BLACK);	
-//	
-//	HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);
-//	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_val,1);	// 读取ADC按键键值
+//	HAL_UART_Transmit_DMA(&huart7,tx_buffer,strlen((const char *)tx_buffer));
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//		LCD_ShowString(120, 72,(uint8_t *)"dmBot", BRRED, BLACK, 24, 0);
-//		LCD_ShowChinese(84, 100, (uint8_t *)"达妙科技", WHITE, BLACK, 32, 0);
-//		LCD_DrawLine(10, 0, 10,  280,WHITE);
-//		LCD_DrawLine(270,0, 270, 280,WHITE);
-//		LCD_ShowIntNum(50, 170, (uint16_t)distance2, 5, WHITE, BLACK, 32);
-//		LCD_ShowPicture(180, 150, 80, 80, gImage_1);
-		
-	switch (state)
-	{
-		case 0:
-			start_signal();//启动信号
-			break;
-		case 1:
-			//state = 2;
-			wait_echo();
-			break;
-		case 2:
-			compute_distance();
-			break;
-		default:
-			state = 0;  
-	}
-		
-//		HAL_GPIO_WritePin(Trig_GPIO_Port,Trig_Pin,1);
-//		speed_ctrl(&hfdcan1, 0x11, 2.0f);
-//		HAL_GPIO_WritePin(Trig_GPIO_Port,Trig_Pin,0);
-//		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
-		
-	static uint8_t flag_exchange;
-	if(flag_exchange)
-	{
-		speed_ctrl(&hfdcan1, 0x11, 20.0f);
-		flag_exchange = 0;
-	}
-	else
-	{
-		flag_exchange = 1;
-		fdcanx_send_data(&hfdcan1, 0x11, data, 8);//使能
-	}
-	
-//	
-	
-	distance2 = KLM(distance);
-	sprintf((char*)tx_buffer, (const char*)"distance:%2.2f,%2.2f\r\n", jd_pos, distance2);//卡尔曼滤波后的数据
-//	//sprintf((char*)tx_buffer,(const char*)"当前角度为%f,对应的距离是%f\r\n",jd_pos, distance);//卡尔曼滤波后的数据
-	//终结
-	//CDC_Transmit_HS(tx_buffer,strlen((const char*)tx_buffer));
-	//HAL_UART_Transmit(&huart7,tx_buffer,strlen((const char*)tx_buffer),1000);
+	  fdcanx_send_data(&hfdcan1, 0x01, data, 8);//使能
+	  HAL_Delay(0);
+	  fdcanx_send_data(&hfdcan1, 0x02, data, 8);//使能
+	  HAL_Delay(0);
+	  fdcanx_send_data(&hfdcan1, 0x03, data, 8);//使能
+	  HAL_Delay(0);
+	  fdcanx_send_data(&hfdcan1, 0x04, data, 8);//使能
+	  HAL_Delay(0);
+	  fdcanx_send_data(&hfdcan1, 0x05, data, 8);//使能
+	  HAL_Delay(0);
+
+	  pos_speed_ctrl(&hfdcan1, 0x01, 0.0f, 1.0f);
+	  HAL_Delay(0);
+	  pos_speed_ctrl(&hfdcan1, 0x02, 0.0f, 1.0f);
+	  HAL_Delay(0);
+	  pos_speed_ctrl(&hfdcan1, 0x03, 0.0f, 1.0f);
+	  HAL_Delay(0);
+	  pos_speed_ctrl(&hfdcan1, 0x04, 0.0f, 1.0f);
+	  HAL_Delay(0);
+	  pos_speed_ctrl(&hfdcan1, 0x05, 0.0f, 1.0f);
+	  HAL_Delay(0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

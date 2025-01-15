@@ -2,6 +2,7 @@
 #define P_MIN -12.5f
 #define P_MAX 12.5f
 #define SPEED_MODE		0x200
+#define POS_MODE	0x100
 float normalize(float value);
 
 float uint_to_float(int x_int, float x_min, float x_max, int bits)
@@ -189,4 +190,27 @@ void speed_ctrl(hcan_t* hcan, uint16_t motor_id, float vel)
 	data[3] = *(vbuf + 3);
 
 	fdcanx_send_data(hcan, id, data, 4);
+}
+
+void pos_speed_ctrl(hcan_t* hcan, uint16_t motor_id, float pos, float vel)
+{
+	uint16_t id;
+	uint8_t* pbuf, * vbuf;
+	uint8_t data[8];
+
+	id = motor_id + POS_MODE;
+	pbuf = (uint8_t*)&pos;
+	vbuf = (uint8_t*)&vel;
+
+	data[0] = *pbuf;
+	data[1] = *(pbuf + 1);
+	data[2] = *(pbuf + 2);
+	data[3] = *(pbuf + 3);
+
+	data[4] = *vbuf;
+	data[5] = *(vbuf + 1);
+	data[6] = *(vbuf + 2);
+	data[7] = *(vbuf + 3);
+
+	fdcanx_send_data(hcan, id, data, 8);
 }
