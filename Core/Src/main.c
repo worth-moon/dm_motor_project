@@ -36,6 +36,11 @@
 
 #include "lcd.h"
 #include "pic.h"
+
+#include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,10 +67,11 @@ uint8_t state;
 uint64_t error_count, success_count, error_count2;
 
 uint16_t adc_val[1]; 
-uint8_t tx_buffer[100] = "distance:99.99,99.99\r\n";
+//uint8_t tx_buffer[100] = "distance:99.99,99.99\r\n";
+uint8_t tx_buffer[100];
 
 //以下为卡尔曼滤波器参数
-float P = 1;
+//float P = 1;
 float P_;  //对应公式中的p'
 float X = 0;
 float X_;  //X'
@@ -79,10 +85,7 @@ void SystemClock_Config(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 extern uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len);
-void start_signal(void);
-void wait_echo(void);
-void compute_distance(void);
-float KLM(float Z);
+void robot_arm(float X, float Y);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -145,35 +148,36 @@ int main(void)
 	data[5] = 0xFF;
 	data[6] = 0xFF;
 	data[7] = 0xFC;
+	
 
-//	HAL_UART_Transmit_DMA(&huart7,tx_buffer,strlen((const char *)tx_buffer));
+    robot_arm(10, 20);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  fdcanx_send_data(&hfdcan1, 0x01, data, 8);//使能
-	  HAL_Delay(0);
-	  fdcanx_send_data(&hfdcan1, 0x02, data, 8);//使能
-	  HAL_Delay(0);
-	  fdcanx_send_data(&hfdcan1, 0x03, data, 8);//使能
-	  HAL_Delay(0);
-	  fdcanx_send_data(&hfdcan1, 0x04, data, 8);//使能
-	  HAL_Delay(0);
-	  fdcanx_send_data(&hfdcan1, 0x05, data, 8);//使能
-	  HAL_Delay(0);
+	  //fdcanx_send_data(&hfdcan1, 0x01, data, 8);//使能
+	  //HAL_Delay(0);
+	  //fdcanx_send_data(&hfdcan1, 0x02, data, 8);//使能
+	  //HAL_Delay(0);
+	  //fdcanx_send_data(&hfdcan1, 0x03, data, 8);//使能
+	  //HAL_Delay(0);
+	  //fdcanx_send_data(&hfdcan1, 0x04, data, 8);//使能
+	  //HAL_Delay(0);
+	  //fdcanx_send_data(&hfdcan1, 0x05, data, 8);//使能
+	  //HAL_Delay(0);
 
-	  pos_speed_ctrl(&hfdcan1, 0x01, 0.0f, 1.0f);
-	  HAL_Delay(0);
-	  pos_speed_ctrl(&hfdcan1, 0x02, 0.0f, 1.0f);
-	  HAL_Delay(0);
-	  pos_speed_ctrl(&hfdcan1, 0x03, 0.0f, 1.0f);
-	  HAL_Delay(0);
-	  pos_speed_ctrl(&hfdcan1, 0x04, 0.0f, 1.0f);
-	  HAL_Delay(0);
-	  pos_speed_ctrl(&hfdcan1, 0x05, 0.0f, 1.0f);
-	  HAL_Delay(0);
+	  //pos_speed_ctrl(&hfdcan1, 0x01, 0.0f, 1.0f);
+	  //HAL_Delay(0);
+	  //pos_speed_ctrl(&hfdcan1, 0x02, -1.0f, 1.0f);
+	  //HAL_Delay(0);
+	  //pos_speed_ctrl(&hfdcan1, 0x03, 0.0f, 1.0f);
+	  //HAL_Delay(0);
+	  //pos_speed_ctrl(&hfdcan1, 0x04, 0.0f, 1.0f);
+	  //HAL_Delay(0);
+	  //pos_speed_ctrl(&hfdcan1, 0x05, 0.0f, 1.0f);
+	  //HAL_Delay(0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -241,93 +245,73 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/*
+1. 传入XY坐标
+2. 数学库验证
+3. 搭建调试系统
+4. 能用的前提下，测试计算速度
+*/
+    float A1 = 23.0, A2 = 12.0, A3 = 12.0, A4 = 12.0;
+    float P = 5; // 假定为机械臂底部，抓不到的一个圆形直径
+    float J1 = 0, J2 = 0, J3 = 0, J4 = 0; // 待求,单位是弧度
+    //float X, Y, Z; // 末端坐标
+		float Z;
+float high, len;
+float test_fuzhi = -5.5;
+    int count = 0;
+    float tolerance = 0.1; // 容差范围，用于比较浮点数
+    float bu_chang = 0.1; // 步长，用于计算角度
+float cur_high, cur_len;
 
-//void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
-//{
-//	sprintf((char*)tx_buffer, (const char*)"distance:%f,%f\r\n", distance, distance2);//卡尔曼滤波后的数据
-//	HAL_UART_Transmit_DMA(&huart7, tx_buffer, strlen((const char*)tx_buffer));
-//}
-
-float KLM(float Z)
+uint64_t forward_count = 0, backward_count = 0;
+void robot_arm(float X, float Y)
 {
-	X_ = X + 0;
-	P_ = P + Q;
-	K = P_ / (P_ + R);
-	X = X_ + K * (Z - X_);
-	P = P_ - K * P_;
-	return X;
+
+    //X = 10; Y = 20; Z = 5;
+    Z = 5;
+    J1 = atan((P + Y) / X); 
+    
+    high = Z;
+    len = sqrt(X * X + (P + Y) * (P + Y));
+
+    //printf("high:%f, len:%f\n", high, len); // 阶段值
+	test_fuzhi = fabs(-10.56);
+	forward_count = HAL_GetTick();
+    for (J2 = 0; J2 < 3.14; J2 += bu_chang)
+    {
+        for (J3 = 0; J3 < 3.14; J3 += bu_chang)
+        {
+            for (J4 = 0; J4 < 3.14; J4 += bu_chang)
+            {
+                //cur_high = A1 + A2 * cos(J2) + A3 * cos(J3 + J2) + A4 * cos(J4 + J2 + J3);
+                //cur_len = A2 * sin(J2) + A3 * sin(J3 + J2) + A4 * sin(J4 + J2 + J3);
+				float c2 = cos(J2);
+				float c23 = cos(J2 + J3);
+				float c234 = cos(J2 + J3 + J4);
+
+				float s2 = sqrt(1 - c2 * c2);
+				float s23 = sqrt(1 - c23 * c23);
+				float s234 = sqrt(1 - c234 * c234);
+
+
+				cur_high = A1 + A2 * c2 + A3 * c23 + A4 * c234;
+				cur_len = A2 * s2 + A3 * s23 + A4 * s234;
+
+                if (fabs(cur_high - high) < tolerance && fabs(len - cur_len) < tolerance)
+                {
+                    count++;
+                    //printf("第%d个满足条件的角度: J1:%f, J2:%f, J3:%f, J4:%f\n", count, J1, J2, J3, J4);
+//                    sprintf(tx_buffer, "第%d个满足条件的角度: J1:%f, J2:%f, J3:%f, J4:%f\n", count, J1, J2, J3, J4);
+//                    CDC_Transmit_HS(tx_buffer, strlen((const char*)tx_buffer));
+                }
+            }
+        }
+    }
+	backward_count = HAL_GetTick();
+    //printf("满足条件的角度组合个数: %d\n", count);
 }
 
-void start_signal(void)
-{
-	HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, 1);
-	delay_us(20);
-	HAL_GPIO_WritePin(Trig_GPIO_Port, Trig_Pin, 0);
-	state = 1;
-}
 
-void wait_echo(void)
-{
-	uint32_t delay_time = 50;
-	uint32_t start_time = HAL_GetTick();//ms级别的计时
-	uint32_t cur_time;
-	while (((cur_time = HAL_GetTick()) - start_time < delay_time) && (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin) == 0)) // 等待1ms，或是超声波响应
-	{
-
-	}
-
-	if (cur_time - start_time >= delay_time)//如果是超时退出，则重新启动
-	{
-		error_count++;
-		state = 0;
-	}
-	else//反之则进入下一步
-	{
-		state = 2;
-		success_count++;
-	}
-}
-
-
-// 全局变量定义
-uint32_t start_time_ms;
-int32_t start_time_us;
-uint32_t cur_time_ms;
-int32_t cur_time_us;
-float echo_time_ms, echo_time_us, echo_time;
-
-void compute_distance(void)
-{
-	start_time_ms = HAL_GetTick(); // ms级别的计时
-	start_time_us = SysTick->VAL;
-	while (HAL_GPIO_ReadPin(Echo_GPIO_Port, Echo_Pin)) // 暂时不做保护，因为当前bug主要集中在state=1的地方
-	{
-
-	};
-	cur_time_ms = HAL_GetTick();
-	cur_time_us = SysTick->VAL;
-	//echo_time = cur_time_ms - start_time_ms;
-	echo_time_ms = cur_time_ms - start_time_ms; // 单位是ms,us也许需要单独处理
-	echo_time_us = -(cur_time_us - start_time_us) * 0.001f * 0.00208f;//也是ms单位,因为是向下的计数器，所以应该取反
-	//echo_time = (cur_time_us - start_time_us) * 0.001f * 0.00363f; // 单位是ms
-	/*
-	*	1. 如果ms之差不超过1，即距离小于0.17m，则cur_us必然大于start_us,此时乘以0.00363，转化为us单位，×0.001，转为ms单位
-	*		实际推测发现，也不尽是，cur_us = 11601 start_us = 163258,一旦二者相减，出现一个负数，则超出了uint32_t能表达的范围，造成溢出
-	*   2. 可以确定，ms级别的计时没有问题，但是分度值在0.17m，太粗了。需要把us级别的计时独立出来，而后必然要封装一个计时函数
-	*/
-	//if (echo_time_ms == 0.0f && echo_time_us < 0)
-	//{
-	//	echo_time_us += 1.0f;
-	//}
-	echo_time = echo_time_ms + echo_time_us; // 单位是ms
-	//if (echo_time > 1000.0f)
-	//{
-	//	error_count2++;	
-	//}
-	// distance = (float)echo_time * 0.001f * 340.0f / 2.0f; // 单位是m
-	distance = (float)echo_time * 0.17;
-	state = 0;
-}
 /* USER CODE END 4 */
 
  /* MPU Configuration */
