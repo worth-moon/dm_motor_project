@@ -3,12 +3,12 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: ¦ÌVision V5.40.0.0
-Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: dfasd 8615622157654, sdfasd, LIC=KRMW3-AEGPP-74BS0-BVLBB-6PJ1G-EFZ70
+IDE-Version: ¦ÌVision V5.36.0.0
+Copyright (C) 2021 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: dfasd 8615622157654, sdfasd, LIC=----
  
 Tool Versions:
-Toolchain:       MDK-ARM Plus  Version: 5.40.0.3
+Toolchain:       MDK-Lite  Version: 5.40.0.3
 Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
 C Compiler:      Armcc.exe V5.06 update 7 (build 960)
 Assembler:       Armasm.exe V5.06 update 7 (build 960)
@@ -28,47 +28,55 @@ Project File Date:  01/16/2025
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'end'
 compiling main.c...
-../Core/Src/main.c(140): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(171): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);
-../Core/Src/main.c(141): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(172): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);
-../Core/Src/main.c(144): warning:  #550-D: variable "data"  was set but never used
-  	uint8_t data[8];
-../Core/Src/main.c(285): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(394): warning:  #167-D: argument of type "volatile float *" is incompatible with parameter of type "float *"
+          test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
+../Core/Src/main.c(387): warning:  #177-D: variable "target_flag"  was declared but never referenced
+      const static uint8_t target_flag = 'B';
+../Core/Src/main.c(428): warning:  #1035-D: single-precision operand implicitly converted to double-precision
       for (J2 = 0; J2 < 3.14; J2 += bu_chang)
-../Core/Src/main.c(287): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(430): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           for (J3 = 0; J3 < 3.14; J3 += bu_chang)
-../Core/Src/main.c(289): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(432): warning:  #1035-D: single-precision operand implicitly converted to double-precision
               for (J4 = 0; J4 < 3.14; J4 += bu_chang)
-../Core/Src/main.c: 6 warnings, 0 errors
+../Core/Src/main.c(434): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                  for (J5 = 0; J5 < 3.14; J5 += bu_chang)
+../Core/Src/main.c(436): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                      for (J6 = 0; J6 < 3.14; J6 += bu_chang)
+../Core/Src/main.c(441): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                          if ((J2 + J3 + J4 + J5 + J6) > 3.14)
+../Core/Src/main.c: 10 warnings, 0 errors
 linking...
-Program Size: Code=38550 RO-data=3142 RW-data=424 ZI-data=9680  
+Program Size: Code=51040 RO-data=3708 RW-data=536 ZI-data=9844  
 FromELF: creating hex file...
-"end\end.axf" - 0 Error(s), 6 Warning(s).
+"end\end.axf" - 0 Error(s), 10 Warning(s).
 
 <h2>Software Packages used:</h2>
 
 Package Vendor: ARM
                 https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
-                ARM::CMSIS@6.1.0
+                ARM.CMSIS.6.1.0
                 CMSIS (Common Microcontroller Software Interface Standard)
    * Component: CORE Version: 6.1.0
 
 Package Vendor: Keil
                 https://www.keil.com/pack/Keil.STM32H7xx_DFP.3.1.0.pack
-                Keil::STM32H7xx_DFP@3.1.0
+                Keil.STM32H7xx_DFP.3.1.0
                 STMicroelectronics STM32H7 Series Device Support and Examples
 
 <h2>Collection of Component include folders:</h2>
-  ./RTE/_end
-  C:/Users/86156/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include
-  C:/Users/86156/AppData/Local/Arm/Packs/Keil/STM32H7xx_DFP/3.1.0/Drivers/CMSIS/Device/ST/STM32H7xx/Include
+  .\RTE\_end
+  C:\Users\86156\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include
+  C:\Users\86156\AppData\Local\Arm\Packs\Keil\STM32H7xx_DFP\3.1.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE@6.1.0
-      Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:19
+   * Component: ARM::CMSIS:CORE:6.1.0
+      Include file:  CMSIS\Core\Include\tz_context.h
+Build Time Elapsed:  00:00:15
 </pre>
 </body>
 </html>

@@ -136,8 +136,23 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 * @details:    	供用户调用的接收弱函数
 ************************************************************************
 **/
+
+//motor->para.id = (rx_data[0]) & 0x0F;
+//motor->para.state = (rx_data[0]) >> 4;
+//motor->para.p_int = (rx_data[1] << 8) | rx_data[2];
+//motor->para.v_int = (rx_data[3] << 4) | (rx_data[4] >> 4);
+//motor->para.t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
+//motor->para.pos = uint_to_float(motor->para.p_int, P_MIN, P_MAX, 16); // (-12.5,12.5)
+//motor->para.vel = uint_to_float(motor->para.v_int, V_MIN, V_MAX, 12); // (-45.0,45.0)
+//motor->para.tor = uint_to_float(motor->para.t_int, T_MIN, T_MAX, 12);  // (-18.0,18.0)
+//motor->para.Tmos = (float)(rx_data[6]);
+//motor->para.Tcoil = (float)(rx_data[7]);
+
+uint16_t v_int, t_int;
+float motor2_state, motor2_pos, motor2_vel, motor2_tor, motor2_Tmos, motor2_Tcoil;
 float pos, jd_pos;
 uint16_t pos_int;//这里竟然不会因为符号而错判
+float jxb_motor_pos[7];
 void fdcan1_rx_callback(void)
 {
 	uint16_t rec_id;
@@ -145,12 +160,52 @@ void fdcan1_rx_callback(void)
 	fdcanx_receive(&hfdcan1, &rec_id, rx_data);
 	switch (rec_id)
 	{
-		case 0x22:
+		case 0x06:
 			pos_int = (rx_data[1] << 8) | rx_data[2];
 			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jd_pos = normalize(pos);
+			jxb_motor_pos[0] = pos;
 			break;
-			// (-12.5,12.5)//dm4310_fbdata(&motor[Motor1], rx_data); break;
+		case 0x07:
+			pos_int = (rx_data[1] << 8) | rx_data[2];
+			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
+			jxb_motor_pos[1] = pos;
+
+			motor2_state = (rx_data[0]) >> 4;
+			motor2_Tmos = (float)(rx_data[6]);
+			motor2_Tcoil = (float)(rx_data[7]);
+			
+			v_int = (rx_data[3] << 4) | (rx_data[4] >> 4);
+			motor2_vel = uint_to_float(v_int, -45.0, 45.0, 12); // (-45.0,45.0)
+			t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
+			motor2_tor = uint_to_float(t_int, -18.0, 18.0, 12);  // (-18.0,18.0)
+			break;
+		case 0x08:
+			pos_int = (rx_data[1] << 8) | rx_data[2];
+			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
+			jxb_motor_pos[2] = pos;
+			break;
+		case 0x09:
+			pos_int = (rx_data[1] << 8) | rx_data[2];
+			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
+			jxb_motor_pos[3] = pos;
+			break;
+		case 0x10:
+			pos_int = (rx_data[1] << 8) | rx_data[2];
+			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
+			jxb_motor_pos[4] = pos;
+			break;
+		case 0x0B:
+			pos_int = (rx_data[1] << 8) | rx_data[2];
+			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
+			jxb_motor_pos[5] = pos;
+			break;
+		case 0x0D:
+			pos_int = (rx_data[1] << 8) | rx_data[2];
+			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
+			jxb_motor_pos[6] = pos;
+			break;
+		default:
+			break;
 	}
 }
 
