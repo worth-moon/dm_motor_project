@@ -82,11 +82,11 @@ float Q = 0.01;//噪声
 float R = 0.2;  //R如果很大，更相信预测值，那么传感器反应就会迟钝，反之相反
 
 //调试电机方向的
-float test_motor1,test_motor2,test_motor3,test_motor4,test_motor5,test_motor6,test_motor7;
+float test_motor1,test_motor2,test_motor3,test_motor4,test_motor5,test_motor6,test_motor7 = 3.0f;
 
 int count = 0;
 volatile float X_IN = 0,Y_IN = 0;
-float A1 = 23.0, A2 = 12.0, A3 = 12.0, A4 = 12.0, A5 = 12.0, A6 = 12.0; // 假设新增的两个关节也是12.0的长度
+float A1 = 23.0, A2 = 12.0, A3 = 12.0, A4 = 12.0, A5 = 12.0, A6 = 9.5; // 假设新增的两个关节也是12.0的长度
 float P = 5; // 假定为机械臂底部，抓不到的一个圆形直径
 float J1 = 0, J2 = 0, J3 = 0, J4 = 0, J5 = 0, J6 = 0; // 待求,单位是弧度
 //float X, Y, Z; // 末端坐标
@@ -184,12 +184,17 @@ int main(void)
 
     uint8_t disable_data[8] = {0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFD};
 	
+#ifdef VIEW_CONTROL
     HAL_UART_Receive_IT(&huart7, rx_buffer + uart_count, 1);
     while(X_IN == 0 && Y_IN == 0)
-		{
-			;
-		}
-		robot_arm(X_IN, Y_IN);
+	{
+		;
+	}
+#else
+    X_IN = 20;
+    Y_IN = 10;
+#endif
+	robot_arm(X_IN, Y_IN);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -232,7 +237,7 @@ int main(void)
       }
 
 
-      float vel_jxb = 0.5f;
+      float vel_jxb = 0.1f;
       pos_speed_ctrl(&hfdcan1, 0x01, test_motor1, vel_jxb);
       HAL_Delay(0);
       pos_speed_ctrl(&hfdcan1, 0x02, test_motor2, vel_jxb);
@@ -247,20 +252,6 @@ int main(void)
       HAL_Delay(0);
       pos_speed_ctrl(&hfdcan1, 0x0C, test_motor7, vel_jxb);
       HAL_Delay(0);  
-
-
-      /*
-      static uint8_t return_flag = 0;
-      return_flag++;
-      if (return_flag == 100)
-      {
-
-      }
-      else
-      {
-
-      }*/
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -385,15 +376,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
     const static uint8_t uart_rx_len = 50;
     const static uint8_t target_flag = 'B';
-    const static uint8_t target_len = 2;
+    const static uint8_t target_len = 5;
 
     uart_count++;
     if (uart_count > uart_rx_len)
     {
         //test_flag = openmv_data_process_flag(rx_buffer, strlen((const char*)rx_buffer), target_flag);
         test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
-				X_IN = tar_buffer[0];
-				Y_IN = tar_buffer[1];
+		X_IN = tar_buffer[0];
+		Y_IN = tar_buffer[1];
         uart_count = 0;
         memset(rx_buffer, 0, strlen((const char*)rx_buffer));
     }
