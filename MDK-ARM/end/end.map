@@ -3471,24 +3471,24 @@ Image Symbol Table
     i.main                                   0x08009850   Section        0  main.o(i.main)
     i.pos_speed_ctrl                         0x08009af8   Section        0  can_bsp.o(i.pos_speed_ctrl)
     i.robot_arm                              0x08009b44   Section        0  main.o(i.robot_arm)
-    i.uint_to_float                          0x08009f04   Section        0  can_bsp.o(i.uint_to_float)
-    x$fpl$fpinit                             0x08009f2c   Section       10  fpinit.o(x$fpl$fpinit)
-    $v0                                      0x08009f2c   Number         0  fpinit.o(x$fpl$fpinit)
-    .constdata                               0x08009f36   Section        8  stm32h7xx_hal_dma.o(.constdata)
-    x$fpl$usenofp                            0x08009f36   Section        0  usenofp.o(x$fpl$usenofp)
-    flagBitshiftOffset                       0x08009f36   Data           8  stm32h7xx_hal_dma.o(.constdata)
-    .constdata                               0x08009f40   Section       92  stm32h7xx_hal_fdcan.o(.constdata)
-    DLCtoBytes                               0x08009f40   Data          16  stm32h7xx_hal_fdcan.o(.constdata)
-    .constdata                               0x08009f9c   Section       24  stm32h7xx_hal_uart.o(.constdata)
-    .constdata                               0x08009fb4   Section       16  stm32h7xx_hal_uart_ex.o(.constdata)
-    numerator                                0x08009fb4   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
-    denominator                              0x08009fbc   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
-    .constdata                               0x08009fc4   Section       16  system_stm32h7xx.o(.constdata)
-    .constdata                               0x08009fd8   Section      152  atan.o(.constdata)
-    atanhi                                   0x08009fd8   Data          32  atan.o(.constdata)
-    atanlo                                   0x08009ff8   Data          32  atan.o(.constdata)
-    aTodd                                    0x0800a018   Data          40  atan.o(.constdata)
-    aTeven                                   0x0800a040   Data          48  atan.o(.constdata)
+    i.uint_to_float                          0x08009f10   Section        0  can_bsp.o(i.uint_to_float)
+    x$fpl$fpinit                             0x08009f38   Section       10  fpinit.o(x$fpl$fpinit)
+    $v0                                      0x08009f38   Number         0  fpinit.o(x$fpl$fpinit)
+    .constdata                               0x08009f42   Section        8  stm32h7xx_hal_dma.o(.constdata)
+    x$fpl$usenofp                            0x08009f42   Section        0  usenofp.o(x$fpl$usenofp)
+    flagBitshiftOffset                       0x08009f42   Data           8  stm32h7xx_hal_dma.o(.constdata)
+    .constdata                               0x08009f4c   Section       92  stm32h7xx_hal_fdcan.o(.constdata)
+    DLCtoBytes                               0x08009f4c   Data          16  stm32h7xx_hal_fdcan.o(.constdata)
+    .constdata                               0x08009fa8   Section       24  stm32h7xx_hal_uart.o(.constdata)
+    .constdata                               0x08009fc0   Section       16  stm32h7xx_hal_uart_ex.o(.constdata)
+    numerator                                0x08009fc0   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
+    denominator                              0x08009fc8   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
+    .constdata                               0x08009fd0   Section       16  system_stm32h7xx.o(.constdata)
+    .constdata                               0x08009fe0   Section      152  atan.o(.constdata)
+    atanhi                                   0x08009fe0   Data          32  atan.o(.constdata)
+    atanlo                                   0x0800a000   Data          32  atan.o(.constdata)
+    aTodd                                    0x0800a020   Data          40  atan.o(.constdata)
+    aTeven                                   0x0800a048   Data          48  atan.o(.constdata)
     .data                                    0x20000000   Section       32  usbd_desc.o(.data)
     .data                                    0x20000020   Section       62  usbd_desc.o(.data)
     .data                                    0x20000060   Section       20  usbd_cdc_if.o(.data)
@@ -4032,17 +4032,17 @@ Image Symbol Table
     fdcanx_send_data                         0x08009825   Thumb Code    42  can_bsp.o(i.fdcanx_send_data)
     main                                     0x08009851   Thumb Code   656  main.o(i.main)
     pos_speed_ctrl                           0x08009af9   Thumb Code    76  can_bsp.o(i.pos_speed_ctrl)
-    robot_arm                                0x08009b45   Thumb Code   940  main.o(i.robot_arm)
-    uint_to_float                            0x08009f05   Thumb Code    40  can_bsp.o(i.uint_to_float)
-    _fp_init                                 0x08009f2d   Thumb Code    10  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x08009f35   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x08009f35   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __I$use$fp                               0x08009f36   Number         0  usenofp.o(x$fpl$usenofp)
-    UARTPrescTable                           0x08009f9c   Data          24  stm32h7xx_hal_uart.o(.constdata)
-    D1CorePrescTable                         0x08009fc4   Data          16  system_stm32h7xx.o(.constdata)
-    sinTable_f32                             0x0800a070   Data        2052  arm_common_tables.o(.rodata.sinTable_f32)
-    Region$$Table$$Base                      0x0800a874   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x0800a8b4   Number         0  anon$$obj.o(Region$$Table)
+    robot_arm                                0x08009b45   Thumb Code   952  main.o(i.robot_arm)
+    uint_to_float                            0x08009f11   Thumb Code    40  can_bsp.o(i.uint_to_float)
+    _fp_init                                 0x08009f39   Thumb Code    10  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x08009f41   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x08009f41   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __I$use$fp                               0x08009f42   Number         0  usenofp.o(x$fpl$usenofp)
+    UARTPrescTable                           0x08009fa8   Data          24  stm32h7xx_hal_uart.o(.constdata)
+    D1CorePrescTable                         0x08009fd0   Data          16  system_stm32h7xx.o(.constdata)
+    sinTable_f32                             0x0800a078   Data        2052  arm_common_tables.o(.rodata.sinTable_f32)
+    Region$$Table$$Base                      0x0800a87c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x0800a8bc   Number         0  anon$$obj.o(Region$$Table)
     HS_Desc                                  0x20000000   Data          32  usbd_desc.o(.data)
     USBD_LangIDDesc                          0x20000020   Data           4  usbd_desc.o(.data)
     USBD_HS_DeviceDesc                       0x20000024   Data          18  usbd_desc.o(.data)
@@ -4138,9 +4138,9 @@ Memory Map of the image
 
   Image Entry point : 0x080002cd
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000aacc, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x0000a9d0])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000aad4, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x0000a9d8])
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000a8b4, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000a8bc, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -4540,41 +4540,40 @@ Memory Map of the image
     0x0800984e   0x0800984e   0x00000002   PAD
     0x08009850   0x08009850   0x000002a8   Code   RO          464    i.main              main.o
     0x08009af8   0x08009af8   0x0000004c   Code   RO           20    i.pos_speed_ctrl    can_bsp.o
-    0x08009b44   0x08009b44   0x000003c0   Code   RO          466    i.robot_arm         main.o
-    0x08009f04   0x08009f04   0x00000028   Code   RO           22    i.uint_to_float     can_bsp.o
-    0x08009f2c   0x08009f2c   0x0000000a   Code   RO         8296    x$fpl$fpinit        fz_wv.l(fpinit.o)
-    0x08009f36   0x08009f36   0x00000000   Code   RO         8076    x$fpl$usenofp       fz_wv.l(usenofp.o)
-    0x08009f36   0x08009f36   0x00000008   Data   RO         2678    .constdata          stm32h7xx_hal_dma.o
-    0x08009f3e   0x08009f3e   0x00000002   PAD
-    0x08009f40   0x08009f40   0x0000005c   Data   RO         5009    .constdata          stm32h7xx_hal_fdcan.o
-    0x08009f9c   0x08009f9c   0x00000018   Data   RO         6944    .constdata          stm32h7xx_hal_uart.o
-    0x08009fb4   0x08009fb4   0x00000010   Data   RO         7310    .constdata          stm32h7xx_hal_uart_ex.o
-    0x08009fc4   0x08009fc4   0x00000010   Data   RO         7415    .constdata          system_stm32h7xx.o
-    0x08009fd4   0x08009fd4   0x00000004   PAD
-    0x08009fd8   0x08009fd8   0x00000098   Data   RO         8019    .constdata          m_wv.l(atan.o)
-    0x0800a070   0x0800a070   0x00000804   Data   RO         7958    .rodata.sinTable_f32  arm_cortexM7lfdp_math.lib(arm_common_tables.o)
-    0x0800a874   0x0800a874   0x00000040   Data   RO         8379    Region$$Table       anon$$obj.o
+    0x08009b44   0x08009b44   0x000003cc   Code   RO          466    i.robot_arm         main.o
+    0x08009f10   0x08009f10   0x00000028   Code   RO           22    i.uint_to_float     can_bsp.o
+    0x08009f38   0x08009f38   0x0000000a   Code   RO         8296    x$fpl$fpinit        fz_wv.l(fpinit.o)
+    0x08009f42   0x08009f42   0x00000000   Code   RO         8076    x$fpl$usenofp       fz_wv.l(usenofp.o)
+    0x08009f42   0x08009f42   0x00000008   Data   RO         2678    .constdata          stm32h7xx_hal_dma.o
+    0x08009f4a   0x08009f4a   0x00000002   PAD
+    0x08009f4c   0x08009f4c   0x0000005c   Data   RO         5009    .constdata          stm32h7xx_hal_fdcan.o
+    0x08009fa8   0x08009fa8   0x00000018   Data   RO         6944    .constdata          stm32h7xx_hal_uart.o
+    0x08009fc0   0x08009fc0   0x00000010   Data   RO         7310    .constdata          stm32h7xx_hal_uart_ex.o
+    0x08009fd0   0x08009fd0   0x00000010   Data   RO         7415    .constdata          system_stm32h7xx.o
+    0x08009fe0   0x08009fe0   0x00000098   Data   RO         8019    .constdata          m_wv.l(atan.o)
+    0x0800a078   0x0800a078   0x00000804   Data   RO         7958    .rodata.sinTable_f32  arm_cortexM7lfdp_math.lib(arm_common_tables.o)
+    0x0800a87c   0x0800a87c   0x00000040   Data   RO         8379    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800a8b4, Size: 0x00001404, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800a8bc, Size: 0x00001404, Max: 0x00020000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x0800a8b4   0x00000020   Data   RW         1078    .data               usbd_desc.o
-    0x20000020   0x0800a8d4   0x0000003e   Data   RW         1079    .data               usbd_desc.o
-    0x2000005e   0x0800a912   0x00000002   PAD
-    0x20000060   0x0800a914   0x00000014   Data   RW         1167    .data               usbd_cdc_if.o
-    0x20000074   0x0800a928   0x0000000c   Data   RW         3551    .data               stm32h7xx_hal.o
-    0x20000080   0x0800a934   0x00000008   Data   RW         7416    .data               system_stm32h7xx.o
-    0x20000088   0x0800a93c   0x00000053   Data   RW         7769    .data               usbd_cdc.o
-    0x200000db   0x0800a98f   0x00000001   PAD
+    0x20000000   0x0800a8bc   0x00000020   Data   RW         1078    .data               usbd_desc.o
+    0x20000020   0x0800a8dc   0x0000003e   Data   RW         1079    .data               usbd_desc.o
+    0x2000005e   0x0800a91a   0x00000002   PAD
+    0x20000060   0x0800a91c   0x00000014   Data   RW         1167    .data               usbd_cdc_if.o
+    0x20000074   0x0800a930   0x0000000c   Data   RW         3551    .data               stm32h7xx_hal.o
+    0x20000080   0x0800a93c   0x00000008   Data   RW         7416    .data               system_stm32h7xx.o
+    0x20000088   0x0800a944   0x00000053   Data   RW         7769    .data               usbd_cdc.o
+    0x200000db   0x0800a997   0x00000001   PAD
     0x200000dc        -       0x000000a0   Zero   RW          691    .bss                fdcan.o
     0x2000017c        -       0x00000088   Zero   RW          751    .bss                spi.o
     0x20000204        -       0x00000200   Zero   RW         1077    .bss                usbd_desc.o
     0x20000404        -       0x00001000   Zero   RW         1166    .bss                usbd_cdc_if.o
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x24000000, Load base: 0x0800a990, Size: 0x00001400, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x00000040])
+    Execution Region RW_IRAM2 (Exec base: 0x24000000, Load base: 0x0800a998, Size: 0x00001400, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x00000040])
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -4608,7 +4607,7 @@ Image component sizes
         60          4          0          0          0        906   dma.o
        268         20          0          0        160       1931   fdcan.o
        292         22          0          0          0       1191   gpio.o
-      1800         50          0        216          0      26757   main.o
+      1812         50          0        216          0      26793   main.o
        268         26          0          0        136       1925   spi.o
         64         26        716          0       1536        844   startup_stm32h723xx.o
        184         36          0         12          0      23049   stm32h7xx_hal.o
@@ -4644,9 +4643,9 @@ Image component sizes
        132          0          0          0          0       4660   usbd_ioreq.o
 
     ----------------------------------------------------------------------
-     38236       1802        942        536       9612    1778711   Object Totals
+     38248       1802        938        536       9612    1778747   Object Totals
          0          0         64          0          0          0   (incl. Generated)
-        60          0          6          6          0          0   (incl. Padding)
+        60          0          2          6          0          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -4712,15 +4711,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     40042       1958       3146        536       9708    1757423   Grand Totals
-     40042       1958       3146        284       9708    1757423   ELF Image Totals (compressed)
-     40042       1958       3146        284          0          0   ROM Totals
+     40054       1958       3142        536       9708    1757459   Grand Totals
+     40054       1958       3142        284       9708    1757459   ELF Image Totals (compressed)
+     40054       1958       3142        284          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                43188 (  42.18kB)
+    Total RO  Size (Code + RO Data)                43196 (  42.18kB)
     Total RW  Size (RW Data + ZI Data)             10244 (  10.00kB)
-    Total ROM Size (Code + RO Data + RW Data)      43472 (  42.45kB)
+    Total ROM Size (Code + RO Data + RW Data)      43480 (  42.46kB)
 
 ==============================================================================
 

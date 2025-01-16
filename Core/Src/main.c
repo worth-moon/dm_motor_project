@@ -191,7 +191,7 @@ int main(void)
 		;
 	}
 #else
-    X_IN = 20;
+    X_IN = -20;
     Y_IN = 10;
 #endif
 	robot_arm(X_IN, Y_IN);
@@ -403,14 +403,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 4. 能用的前提下，测试计算速度
 */
 
-
+//这里的坐标原点，应该不是在1号电机的脚下，而是沿Y轴方向再走P的样子
+//高度问题,确定是静态误差 -3cm,大抵是测量误差
+//X轴负方向对称的问题
+//定义为桌面机械臂，仅抓取向前一个扇面和向下的物体
 void robot_arm(float X, float Y)
 {
     //X = 10; Y = 20; Z = 5;
-    Z = 10;
+    Z = 15;//
     J1 = atan((P + Y) / X);
+    if (J1 < 0)
+    {
+        J1 = fabs(J1) + 3.14f;
+    }
 
-    high = Z;
+    high = Z + 3;
     len = sqrt(X * X + (P + Y) * (P + Y));
 
     //printf("high:%f, len:%f\n", high, len); // 阶段值
