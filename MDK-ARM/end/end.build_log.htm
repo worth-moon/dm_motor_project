@@ -28,31 +28,33 @@ Project File Date:  01/16/2025
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'end'
 compiling main.c...
-../Core/Src/main.c(171): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(174): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);
-../Core/Src/main.c(172): warning:  #188-D: enumerated type mixed with another type
+../Core/Src/main.c(175): warning:  #188-D: enumerated type mixed with another type
   	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);
-../Core/Src/main.c(385): warning:  #167-D: argument of type "volatile float *" is incompatible with parameter of type "float *"
+../Core/Src/main.c(264): warning:  #550-D: variable "ori_count"  was set but never used
+        static uint64_t ori_count, end_count,first_flag,jxb_dz,wait_time;
+../Core/Src/main.c(451): warning:  #167-D: argument of type "volatile float *" is incompatible with parameter of type "float *"
           test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
-../Core/Src/main.c(378): warning:  #177-D: variable "target_flag"  was declared but never referenced
+../Core/Src/main.c(444): warning:  #177-D: variable "target_flag"  was declared but never referenced
       const static uint8_t target_flag = 'B';
-../Core/Src/main.c(426): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(492): warning:  #1035-D: single-precision operand implicitly converted to double-precision
       for (J2 = 0; J2 < 3.14; J2 += bu_chang)
-../Core/Src/main.c(428): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(494): warning:  #1035-D: single-precision operand implicitly converted to double-precision
           for (J3 = 0; J3 < 3.14; J3 += bu_chang)
-../Core/Src/main.c(430): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(496): warning:  #1035-D: single-precision operand implicitly converted to double-precision
               for (J4 = 0; J4 < 3.14; J4 += bu_chang)
-../Core/Src/main.c(432): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(498): warning:  #1035-D: single-precision operand implicitly converted to double-precision
                   for (J5 = 0; J5 < 3.14; J5 += bu_chang)
-../Core/Src/main.c(434): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(500): warning:  #1035-D: single-precision operand implicitly converted to double-precision
                       for (J6 = 0; J6 < 3.14; J6 += bu_chang)
-../Core/Src/main.c(439): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(505): warning:  #1035-D: single-precision operand implicitly converted to double-precision
                           if ((J2 + J3 + J4 + J5 + J6) > 3.14)
-../Core/Src/main.c: 10 warnings, 0 errors
+../Core/Src/main.c: 11 warnings, 0 errors
 linking...
-Program Size: Code=40054 RO-data=3142 RW-data=536 ZI-data=9708  
+Program Size: Code=38262 RO-data=938 RW-data=660 ZI-data=9708  
 FromELF: creating hex file...
-"end\end.axf" - 0 Error(s), 10 Warning(s).
+"end\end.axf" - 0 Error(s), 11 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -76,7 +78,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:19
+Build Time Elapsed:  00:00:15
 </pre>
 </body>
 </html>

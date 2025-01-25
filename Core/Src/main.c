@@ -111,6 +111,9 @@ uint8_t uart_count;
 uint8_t rx_buffer[50];
 uint8_t test_flag;
 volatile float tar_buffer[20];
+
+float jxb_709[3][7] = { {0,0,0,0,1.57,0,0},{0.128f,0.212f,1.2f,-1.7f,0.47f,-1.37f,3.0f},{0.0059,0.08,0.05,-1.61,1.50,-1.55,3.0} };
+float jxb_716[3][7] = { {0,0,0,0,1.57,0,0},{0,0,0,0,0,0,0},{-0.03,2.13,1.96,-1.72,-1.7,1.33,0.43} };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -194,7 +197,12 @@ int main(void)
     X_IN = -20;
     Y_IN = 10;
 #endif
+
+#ifdef JXB_NJ
 	robot_arm(X_IN, Y_IN);
+#else
+    count = 1;
+#endif
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -236,8 +244,8 @@ int main(void)
           HAL_Delay(0);
       }
 
-
-      float vel_jxb = 0.1f;
+#ifdef JXB_NJ
+      float vel_jxb = 1.0.f;
       pos_speed_ctrl(&hfdcan1, 0x01, test_motor1, vel_jxb);
       HAL_Delay(0);
       pos_speed_ctrl(&hfdcan1, 0x02, test_motor2, vel_jxb);
@@ -252,7 +260,65 @@ int main(void)
       HAL_Delay(0);
       pos_speed_ctrl(&hfdcan1, 0x0C, test_motor7, vel_jxb);
       HAL_Delay(0);  
-    /* USER CODE END WHILE */
+#else
+      static uint64_t ori_count, end_count,first_flag,jxb_dz,wait_time;
+			
+			if(jxb_dz == 0)
+				wait_time = 10000;
+			else if (jxb_dz == 1)
+				wait_time = 8000;
+			else if (jxb_dz == 2)
+				wait_time = 8000;
+			
+      if (first_flag == 0)
+      {
+          first_flag = 1;
+          ori_count = HAL_GetTick();
+          end_count = HAL_GetTick() + wait_time;
+      }
+
+      if (HAL_GetTick() > end_count)
+      {
+          first_flag = 0;
+          jxb_dz++;
+          if (jxb_dz >= 3)
+          {
+              jxb_dz = 0;
+          }
+      }
+
+      float vel_jxb = 0.25f;
+      pos_speed_ctrl(&hfdcan1, 0x01, jxb_709[jxb_dz][0], vel_jxb);
+      HAL_Delay(0);
+      pos_speed_ctrl(&hfdcan1, 0x02, jxb_709[jxb_dz][1], vel_jxb);
+      HAL_Delay(0);
+      pos_speed_ctrl(&hfdcan1, 0x03, jxb_709[jxb_dz][2], vel_jxb);
+      HAL_Delay(0);
+      pos_speed_ctrl(&hfdcan1, 0x04, jxb_709[jxb_dz][3], vel_jxb);
+      HAL_Delay(0);
+      pos_speed_ctrl(&hfdcan1, 0x05, jxb_709[jxb_dz][4], vel_jxb);
+      HAL_Delay(0);
+      pos_speed_ctrl(&hfdcan1, 0x0A, jxb_709[jxb_dz][5], vel_jxb);
+      HAL_Delay(0);
+      pos_speed_ctrl(&hfdcan1, 0x0C, jxb_709[jxb_dz][6], vel_jxb);
+      HAL_Delay(0);
+
+      //pos_speed_ctrl(&hfdcan1, 0x01, jxb_716[jxb_dz][0], vel_jxb);
+      //HAL_Delay(0);
+      //pos_speed_ctrl(&hfdcan1, 0x02, jxb_716[jxb_dz][1], vel_jxb);
+      //HAL_Delay(0);
+      //pos_speed_ctrl(&hfdcan1, 0x03, jxb_716[jxb_dz][2], vel_jxb);
+      //HAL_Delay(0);
+      //pos_speed_ctrl(&hfdcan1, 0x04, jxb_716[jxb_dz][3], vel_jxb);
+      //HAL_Delay(0);
+      //pos_speed_ctrl(&hfdcan1, 0x05, jxb_716[jxb_dz][4], vel_jxb);
+      //HAL_Delay(0);
+      //pos_speed_ctrl(&hfdcan1, 0x0A, jxb_716[jxb_dz][5], vel_jxb);
+      //HAL_Delay(0);
+      //pos_speed_ctrl(&hfdcan1, 0x0C, jxb_716[jxb_dz][6], vel_jxb);
+      //HAL_Delay(0);
+#endif
+      /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }

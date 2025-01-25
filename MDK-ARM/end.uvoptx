@@ -250,6 +250,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>jxb_motor_pos[0]</ItemText>
         </Ww>
+        <Ww>
+          <count>18</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>jxb_motor_pos</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
