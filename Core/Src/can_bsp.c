@@ -2,7 +2,17 @@
 #define P_MIN -12.5f
 #define P_MAX 12.5f
 #define SPEED_MODE		0x200
-#define POS_MODE	0x100
+#define POS_MODE		0x100
+#define MIT_MODE 		0x000
+#define KP_MIN 0.0f
+#define KP_MAX 500.0f
+#define KD_MIN 0.0f
+#define KD_MAX 5.0f
+
+// 新增的宏定义
+#define MOTOR_PMAX 12.5f
+#define MOTOR_VMAX 30.0f
+#define MOTOR_TMAX 10.0f
 float normalize(float value);
 
 float uint_to_float(int x_int, float x_min, float x_max, int bits)
@@ -153,6 +163,7 @@ float motor2_state, motor2_pos, motor2_vel, motor2_tor, motor2_Tmos, motor2_Tcoi
 float pos, jd_pos;
 uint16_t pos_int;//这里竟然不会因为符号而错判
 float jxb_motor_pos[7];
+float xita;
 void fdcan1_rx_callback(void)
 {
 	uint16_t rec_id;
@@ -160,16 +171,11 @@ void fdcan1_rx_callback(void)
 	fdcanx_receive(&hfdcan1, &rec_id, rx_data);
 	switch (rec_id)
 	{
-		case 0x06:
+		case 0x01:
 			pos_int = (rx_data[1] << 8) | rx_data[2];
 			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[0] = pos;
-			break;
-		case 0x07:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[1] = pos;
-
+			//jxb_motor_pos[1] = pos;
+			xita = pos;
 			motor2_state = (rx_data[0]) >> 4;
 			motor2_Tmos = (float)(rx_data[6]);
 			motor2_Tcoil = (float)(rx_data[7]);
@@ -178,31 +184,6 @@ void fdcan1_rx_callback(void)
 			motor2_vel = uint_to_float(v_int, -45.0, 45.0, 12); // (-45.0,45.0)
 			t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
 			motor2_tor = uint_to_float(t_int, -18.0, 18.0, 12);  // (-18.0,18.0)
-			break;
-		case 0x08:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[2] = pos;
-			break;
-		case 0x09:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[3] = pos;
-			break;
-		case 0x10:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[4] = pos;
-			break;
-		case 0x0B:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[5] = pos;
-			break;
-		case 0x0D:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			jxb_motor_pos[6] = pos;
 			break;
 		default:
 			break;
@@ -268,4 +249,37 @@ void pos_speed_ctrl(hcan_t* hcan, uint16_t motor_id, float pos, float vel)
 	data[7] = *(vbuf + 3);
 
 	fdcanx_send_data(hcan, id, data, 8);
+}
+
+int float_to_uint(float x_float, float x_min, float x_max, int bits)
+{
+	/* Converts a float to an unsigned int, given range and number of bits */
+	float span = x_max - x_min;
+	float offset = x_min;
+	return (int) ((x_float-offset)*((float)((1<<bits)-1))/span);
+}
+
+void mit_ctrl(hcan_t* hcan,uint16_t motor_id, float pos, float vel, float kp, float kd, float tor) 
+{
+    uint8_t data[8];
+    uint16_t pos_tmp, vel_tmp, kp_tmp, kd_tmp, tor_tmp;
+    uint16_t id = motor_id + MIT_MODE;
+    
+    // 使用宏定义替代原来的motor->tmp参数
+    pos_tmp = float_to_uint(pos, -MOTOR_PMAX, MOTOR_PMAX, 16);
+    vel_tmp = float_to_uint(vel, -MOTOR_VMAX, MOTOR_VMAX, 12);
+    tor_tmp = float_to_uint(tor, -MOTOR_TMAX, MOTOR_TMAX, 12);
+    kp_tmp  = float_to_uint(kp,  KP_MIN, KP_MAX, 12);
+    kd_tmp  = float_to_uint(kd,  KD_MIN, KD_MAX, 12);
+    
+    data[0] = (pos_tmp >> 8);
+    data[1] = pos_tmp;
+    data[2] = (vel_tmp >> 4);
+    data[3] = ((vel_tmp&0xF)<<4)|(kp_tmp>>8);
+    data[4] = kp_tmp;
+    data[5] = (kd_tmp >> 4);
+    data[6] = ((kd_tmp&0xF)<<4)|(tor_tmp>>8);
+    data[7] = tor_tmp;
+    
+    fdcanx_send_data(hcan, id, data, 8);
 }

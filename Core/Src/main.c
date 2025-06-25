@@ -111,6 +111,7 @@ uint8_t uart_count;
 uint8_t rx_buffer[50];
 uint8_t test_flag;
 volatile float tar_buffer[20];
+volatile float t_output,xita_jxb;
 
 float jxb_709[3][7] = { {0,0,0,0,1.57,0,0},{0.128f,0.212f,1.2f,-1.7f,0.47f,-1.37f,3.0f},{0.0059,0.08,0.05,-1.61,1.50,-1.55,3.0} };
 float jxb_716[3][7] = { {0,0,0,0,1.57,0,0},{0,0,0,0,0,0,0},{-0.03,2.13,1.96,-1.72,-1.7,1.33,0.43} };
@@ -187,137 +188,20 @@ int main(void)
 
     uint8_t disable_data[8] = {0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFD};
 	
-#ifdef VIEW_CONTROL
-    HAL_UART_Receive_IT(&huart7, rx_buffer + uart_count, 1);
-    while(X_IN == 0 && Y_IN == 0)
-	{
-		;
-	}
-#else
-    X_IN = -20;
-    Y_IN = 10;
-#endif
-
-#ifdef JXB_NJ
-	robot_arm(X_IN, Y_IN);
-#else
-    count = 1;
-#endif
+    fdcanx_send_data(&hfdcan1,0x00,data,8);//使能
+    HAL_Delay(1000);
+    mit_ctrl(&hfdcan1,0x00,0,0,0,0,0.5f);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      if (count == 0)
-      {
-          fdcanx_send_data(&hfdcan1, 0x01, disable_data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x02, disable_data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x03, disable_data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x04, disable_data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x05, disable_data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x0A, disable_data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x0C, disable_data, 8);//使能
-          HAL_Delay(0);
-      }
-      else
-      {
-          fdcanx_send_data(&hfdcan1, 0x01, data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x02, data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x03, data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x04, data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x05, data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x0A, data, 8);//使能
-          HAL_Delay(0);
-          fdcanx_send_data(&hfdcan1, 0x0C, data, 8);//使能
-          HAL_Delay(0);
-      }
+			xita_jxb = xita + 3.14f/2;//纠正零点
+			t_output = 0.39788f * cosf(xita_jxb);//计算力矩
+			mit_ctrl(&hfdcan1,0x00,0,0,0,0,t_output);//施加力矩
+			HAL_Delay(10);
 
-#ifdef JXB_NJ
-      float vel_jxb = 1.0.f;
-      pos_speed_ctrl(&hfdcan1, 0x01, test_motor1, vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x02, test_motor2, vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x03, -test_motor3, vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x04, test_motor4, vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x05, -test_motor5, vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x0A, test_motor6, vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x0C, test_motor7, vel_jxb);
-      HAL_Delay(0);  
-#else
-      static uint64_t ori_count, end_count,first_flag,jxb_dz,wait_time;
-			
-			if(jxb_dz == 0)
-				wait_time = 10000;
-			else if (jxb_dz == 1)
-				wait_time = 8000;
-			else if (jxb_dz == 2)
-				wait_time = 8000;
-			
-      if (first_flag == 0)
-      {
-          first_flag = 1;
-          ori_count = HAL_GetTick();
-          end_count = HAL_GetTick() + wait_time;
-      }
-
-      if (HAL_GetTick() > end_count)
-      {
-          first_flag = 0;
-          jxb_dz++;
-          if (jxb_dz >= 3)
-          {
-              jxb_dz = 0;
-          }
-      }
-
-      float vel_jxb = 0.25f;
-      pos_speed_ctrl(&hfdcan1, 0x01, jxb_709[jxb_dz][0], vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x02, jxb_709[jxb_dz][1], vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x03, jxb_709[jxb_dz][2], vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x04, jxb_709[jxb_dz][3], vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x05, jxb_709[jxb_dz][4], vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x0A, jxb_709[jxb_dz][5], vel_jxb);
-      HAL_Delay(0);
-      pos_speed_ctrl(&hfdcan1, 0x0C, jxb_709[jxb_dz][6], vel_jxb);
-      HAL_Delay(0);
-
-      //pos_speed_ctrl(&hfdcan1, 0x01, jxb_716[jxb_dz][0], vel_jxb);
-      //HAL_Delay(0);
-      //pos_speed_ctrl(&hfdcan1, 0x02, jxb_716[jxb_dz][1], vel_jxb);
-      //HAL_Delay(0);
-      //pos_speed_ctrl(&hfdcan1, 0x03, jxb_716[jxb_dz][2], vel_jxb);
-      //HAL_Delay(0);
-      //pos_speed_ctrl(&hfdcan1, 0x04, jxb_716[jxb_dz][3], vel_jxb);
-      //HAL_Delay(0);
-      //pos_speed_ctrl(&hfdcan1, 0x05, jxb_716[jxb_dz][4], vel_jxb);
-      //HAL_Delay(0);
-      //pos_speed_ctrl(&hfdcan1, 0x0A, jxb_716[jxb_dz][5], vel_jxb);
-      //HAL_Delay(0);
-      //pos_speed_ctrl(&hfdcan1, 0x0C, jxb_716[jxb_dz][6], vel_jxb);
-      //HAL_Delay(0);
-#endif
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -509,22 +393,22 @@ void robot_arm(float X, float Y)
                         }
                         youxiao_count++;
 
-                        c2 = arm_cos_f32(J2);
-                        c23 = arm_cos_f32(J2 + J3);
-                        c234 = arm_cos_f32(J2 + J3 + J4);
-                        c2345 = arm_cos_f32(J2 + J3 + J4 + J5);
-                        c23456 = arm_cos_f32(J2 + J3 + J4 + J5 + J6);
+//                        c2 = arm_cos_f32(J2);
+//                        c23 = arm_cos_f32(J2 + J3);
+//                        c234 = arm_cos_f32(J2 + J3 + J4);
+//                        c2345 = arm_cos_f32(J2 + J3 + J4 + J5);
+//                        c23456 = arm_cos_f32(J2 + J3 + J4 + J5 + J6);
 
-                        dsp_sqrt_in = 1 - c2 * c2;
-                        arm_sqrt_f32(dsp_sqrt_in, &s2);
-                        dsp_sqrt_in = 1 - c23 * c23;
-                        arm_sqrt_f32(dsp_sqrt_in, &s23);
-                        dsp_sqrt_in = 1 - c234 * c234;
-                        arm_sqrt_f32(dsp_sqrt_in, &s234);
-                        dsp_sqrt_in = 1 - c2345 * c2345;
-                        arm_sqrt_f32(dsp_sqrt_in, &s2345);
-                        dsp_sqrt_in = 1 - c23456 * c23456;
-                        arm_sqrt_f32(dsp_sqrt_in, &s23456);
+//                        dsp_sqrt_in = 1 - c2 * c2;
+//                        arm_sqrt_f32(dsp_sqrt_in, &s2);
+//                        dsp_sqrt_in = 1 - c23 * c23;
+//                        arm_sqrt_f32(dsp_sqrt_in, &s23);
+//                        dsp_sqrt_in = 1 - c234 * c234;
+//                        arm_sqrt_f32(dsp_sqrt_in, &s234);
+//                        dsp_sqrt_in = 1 - c2345 * c2345;
+//                        arm_sqrt_f32(dsp_sqrt_in, &s2345);
+//                        dsp_sqrt_in = 1 - c23456 * c23456;
+//                        arm_sqrt_f32(dsp_sqrt_in, &s23456);
 
                         cur_high = A1 + A2 * c2 + A3 * c23 + A4 * c234 + A5 * c2345 + A6 * c23456;
                         cur_len = A2 * s2 + A3 * s23 + A4 * s234 + A5 * s2345 + A6 * s23456;
