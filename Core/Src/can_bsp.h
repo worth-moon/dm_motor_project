@@ -5,7 +5,7 @@
 
 #define hcan_t FDCAN_HandleTypeDef
 
-extern float xita;
+extern float xita[6];
 void can_bsp_init(void);
 void can_filter_init(void);
 uint8_t fdcanx_send_data(FDCAN_HandleTypeDef *hfdcan, uint16_t id, uint8_t *data, uint32_t len);

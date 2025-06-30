@@ -159,35 +159,55 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 //motor->para.Tcoil = (float)(rx_data[7]);
 
 uint16_t v_int, t_int;
-float motor2_state, motor2_pos, motor2_vel, motor2_tor, motor2_Tmos, motor2_Tcoil;
-float pos, jd_pos;
-uint16_t pos_int;//这里竟然不会因为符号而错判
+// 6个电机的数据数组
+float motor_state[6], motor_pos[6], motor_vel[6], motor_tor[6], motor_Tmos[6], motor_Tcoil[6];
+float pos[6], jd_pos[6];
+uint16_t pos_int[6];
 float jxb_motor_pos[7];
-float xita;
+float xita[6];  // 6个xita值
+
+// CAN ID到数组索引的映射函数
+int get_motor_index(uint16_t can_id) {
+    switch(can_id) {
+        case 0x01: return 0;
+        case 0x03: return 1;
+        case 0x05: return 2;
+        case 0x07: return 3;
+        case 0x09: return 4;
+        case 0x11: return 5;
+        default: return -1;  // 无效ID
+    }
+}
+
 void fdcan1_rx_callback(void)
 {
-	uint16_t rec_id;
-	uint8_t rx_data[8] = { 0 };
-	fdcanx_receive(&hfdcan1, &rec_id, rx_data);
-	switch (rec_id)
-	{
-		case 0x01:
-			pos_int = (rx_data[1] << 8) | rx_data[2];
-			pos = uint_to_float(pos_int, P_MIN, P_MAX, 16);
-			//jxb_motor_pos[1] = pos;
-			xita = pos;
-			motor2_state = (rx_data[0]) >> 4;
-			motor2_Tmos = (float)(rx_data[6]);
-			motor2_Tcoil = (float)(rx_data[7]);
-			
-			v_int = (rx_data[3] << 4) | (rx_data[4] >> 4);
-			motor2_vel = uint_to_float(v_int, -45.0, 45.0, 12); // (-45.0,45.0)
-			t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
-			motor2_tor = uint_to_float(t_int, -18.0, 18.0, 12);  // (-18.0,18.0)
-			break;
-		default:
-			break;
-	}
+    uint16_t rec_id;
+    uint8_t rx_data[8] = { 0 };
+    int motor_idx;
+    
+    fdcanx_receive(&hfdcan1, &rec_id, rx_data);
+    
+    // 获取电机索引
+    motor_idx = get_motor_index(rec_id);
+    if (motor_idx < 0) {
+        return;  // 无效的CAN ID，直接返回
+    }
+    
+    // 解析数据并存储到对应的数组索引
+    pos_int[motor_idx] = (rx_data[1] << 8) | rx_data[2];
+    pos[motor_idx] = uint_to_float(pos_int[motor_idx], P_MIN, P_MAX, 16);
+    //jxb_motor_pos[motor_idx + 1] = pos[motor_idx];  // 如果需要的话
+    xita[motor_idx] = pos[motor_idx];
+    
+    motor_state[motor_idx] = (rx_data[0]) >> 4;
+    motor_Tmos[motor_idx] = (float)(rx_data[6]);
+    motor_Tcoil[motor_idx] = (float)(rx_data[7]);
+    
+    v_int = (rx_data[3] << 4) | (rx_data[4] >> 4);
+    motor_vel[motor_idx] = uint_to_float(v_int, -45.0, 45.0, 12); // (-45.0,45.0)
+    
+    t_int = ((rx_data[4] & 0xF) << 8) | rx_data[5];
+    motor_tor[motor_idx] = uint_to_float(t_int, -18.0, 18.0, 12);  // (-18.0,18.0)
 }
 
 float normalize(float value)

@@ -27,16 +27,16 @@ Project File Date:  06/25/2025
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'end'
-../Core/Src/main.c(335): warning: passing 'volatile float[20]' to parameter of type 'float *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-  335 |         test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
+../Core/Src/main.c(376): warning: passing 'volatile float[20]' to parameter of type 'float *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+  376 |         test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
       |                                                                                                      ^~~~~~~~~~
-../Core/Src/main.c(277): note: passing argument to parameter 'target_data' here
-  277 | uint8_t openmv_data_process_float(uint8_t* rx_data, uint8_t len, uint8_t target_len, float* target_data)
+../Core/Src/main.c(318): note: passing argument to parameter 'target_data' here
+  318 | uint8_t openmv_data_process_float(uint8_t* rx_data, uint8_t len, uint8_t target_len, float* target_data)
       |                                                                                             ^
 1 warning generated.
 compiling main.c...
 linking...
-Program Size: Code=46584 RO-data=972 RW-data=256 ZI-data=9864  
+Program Size: Code=46936 RO-data=972 RW-data=256 ZI-data=9996  
 FromELF: creating hex file...
 "end\end.axf" - 0 Error(s), 1 Warning(s).
 
