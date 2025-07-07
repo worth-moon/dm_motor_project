@@ -166,15 +166,15 @@ int main(void)
   MX_DMA_Init();
   MX_FDCAN1_Init();
   MX_USB_DEVICE_Init();
-  MX_TIM3_Init();
+  MX_TIM3_Init(); //10ms一次的心跳定时器
   MX_ADC1_Init();
   MX_SPI1_Init();
   MX_UART7_Init();
   /* USER CODE BEGIN 2 */
-	delay_init(480);
-	can_bsp_init();
-	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);
-	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);
+	delay_init(480);//不加程序会卡死
+	can_bsp_init();//can滤波器和开启外设
+	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);//XT30+CAN 可控开关1
+	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN 可控开关2
 	HAL_Delay(1000);
 	
 	uint8_t data[8];
@@ -201,17 +201,29 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    //修正角度
-    xita_jxb[0] = xita[0] + 3.14f/2;
-    xita_jxb[1] = - xita[1];
-    xita_jxb[2] = xita[2];
-    //计算alpha
+    //------------------- 1. 修正角度 -------------------
+    // 将原始角度 xita 修正为机械臂实际关节角度 xita_jxb
+    xita_jxb[0] = xita[0] + 3.14f/2;   // 关节1角度加90度
+    xita_jxb[1] = - xita[1];           // 关节2角度取反
+    xita_jxb[2] = xita[2];             // 关节3角度不变
+    
+    //------------------- 2. 计算各关节的绝对角度 alpha -------------------
+    // alpha[i] 表示第i个关节的绝对角度（从基座到该关节的总旋转角度）
     alpha[0] = xita_jxb[0];
     alpha[1] = xita_jxb[0] + xita_jxb[1];
     alpha[2] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2];
-		
+    
+    //------------------- 3. 定义机械参数 -------------------
     float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
-    // 关节1：承载整个系统
+    // m_link: 单根连杆质量
+    // m_motor: 单个电机质量
+    // lc: 连杆质心到关节距离
+    // l_count: 连杆长度
+    // g_count: 重力加速度
+    
+    //------------------- 4. 计算各关节所需力矩 -------------------
+    
+    // 关节1：承载整个系统的重力分量
     t_output[0] = g_count * (
       m_link * lc * cosf(alpha[0]) + 
       m_motor * l_count * cosf(alpha[0]) + 
@@ -219,24 +231,26 @@ int main(void)
       m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1])) +
       m_link * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + lc * cosf(alpha[2]))
     );
-
-    // 关节2：承载连杆2+电机3+连杆3
+    
+    // 关节2：承载连杆2、电机3、连杆3的重力分量
     t_output[1] = g_count * (
       m_link * lc * cosf(alpha[1]) +
       m_motor * l_count * cosf(alpha[1]) +
       m_link * (l_count * cosf(alpha[1]) + lc * cosf(alpha[2]))
-    ) * (-1.0f);
-
-    // 关节3：仅承载连杆3  
+    ) * (-1.0f); // 注意方向为负
+    
+    // 关节3：仅承载连杆3的重力分量
     t_output[2] = g_count * m_link * lc * cosf(alpha[2]);
-    //施加力矩到关节电机
+    
+    //------------------- 5. 发送力矩指令到各关节电机 -------------------
+    
+    // 依次给3个关节电机发送力矩控制指令
     mit_ctrl(&hfdcan1,0x00,0,0,0,0,t_output[0]);
-		HAL_Delay(1);
+    HAL_Delay(1);
     mit_ctrl(&hfdcan1,0x02,0,0,0,0,t_output[1]);
-		HAL_Delay(1);
-		mit_ctrl(&hfdcan1,0x04,0,0,0,0,t_output[2]);
-		HAL_Delay(1);
-
+    HAL_Delay(1);
+    mit_ctrl(&hfdcan1,0x04,0,0,0,0,t_output[2]);
+    HAL_Delay(1);
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

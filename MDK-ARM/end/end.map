@@ -6398,7 +6398,7 @@ Image component sizes
         68          0          0          0          0       5368   dma.o
        288          0          0          0        160      11255   fdcan.o
        312          0          0          0          0       3082   gpio.o
-       926         36          0          0        112      12786   main.o
+       926         36          0          0        112      12748   main.o
        304          0          0          0        136       8401   spi.o
         64         26        716          0       1536        820   startup_stm32h723xx.o
        218          0          0          8          4      15928   stm32h7xx_hal.o
@@ -6434,7 +6434,7 @@ Image component sizes
        132          0          0          0          0       4715   usbd_ioreq.o
 
     ----------------------------------------------------------------------
-     45540        948        940        256       9900     631771   Object Totals
+     45540        948        940        256       9900     631733   Object Totals
          0          0         64          0          0          0   (incl. Generated)
        862         24          0          7          7          0   (incl. Padding)
 
@@ -6499,8 +6499,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     47080       1054        972        256       9996     632075   Grand Totals
-     47080       1054        972        256       9996     632075   ELF Image Totals
+     47080       1054        972        256       9996     632037   Grand Totals
+     47080       1054        972        256       9996     632037   ELF Image Totals
      47080       1054        972        256          0          0   ROM Totals
 
 ==============================================================================

@@ -5,7 +5,7 @@
 <h2>Tool Versions:</h2>
 IDE-Version: ¦ÌVision V5.41.0.0
 Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: DFGDSF person, GDSFG, LIC=----
+License Information: DFGDSF person, GDSFG, LIC=X96CK-ZCFZ7-74BS0-BVLBB-HUEXV-FZ41I
  
 Tool Versions:
 Toolchain:       MDK-ARM Plus  Version: 5.41.0.0
@@ -27,7 +27,18 @@ Project File Date:  07/07/2025
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'E:\KEIL\ARM\ARMCLANG\Bin'
 Build target 'end'
-"end\end.axf" - 0 Error(s), 0 Warning(s).
+../Core/Src/main.c(384): warning: passing 'volatile float[20]' to parameter of type 'float *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+  384 |         test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
+      |                                                                                                      ^~~~~~~~~~
+../Core/Src/main.c(326): note: passing argument to parameter 'target_data' here
+  326 | uint8_t openmv_data_process_float(uint8_t* rx_data, uint8_t len, uint8_t target_len, float* target_data)
+      |                                                                                             ^
+1 warning generated.
+compiling main.c...
+linking...
+Program Size: Code=47080 RO-data=972 RW-data=256 ZI-data=9996  
+FromELF: creating hex file...
+"end\end.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +61,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>
