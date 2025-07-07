@@ -193,8 +193,8 @@ int main(void)
 		HAL_Delay(10);
     fdcanx_send_data(&hfdcan1,0x02,data,8);
     HAL_Delay(10);
-//		fdcanx_send_data(&hfdcan1,0x04,data,8);
-//    HAL_Delay(10);
+		fdcanx_send_data(&hfdcan1,0x04,data,8);
+    HAL_Delay(10);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -204,44 +204,38 @@ int main(void)
     //修正角度
     xita_jxb[0] = xita[0] + 3.14f/2;
     xita_jxb[1] = - xita[1];
-    xita_jxb[2] = xita[2] + 3.14f/2;
+    xita_jxb[2] = xita[2];
     //计算alpha
     alpha[0] = xita_jxb[0];
     alpha[1] = xita_jxb[0] + xita_jxb[1];
     alpha[2] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2];
 		
-    // 参数定义（新增末端电机参数）
-//float m_link = 0.135f, g_count = 9.8f, lc = 0.06f, l_count = 0.12f, m_motor = 0.305f;
-float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f;
-		//t_output[0] = 1.8382 * cosf(alpha[0]);
-// 关节1重力补偿力矩：承载整个系统重量
-t_output[0] = g_count * (m_link * lc * cosf(alpha[0]) + 
-                        m_motor * l_count * cosf(alpha[0]) + 
-                        m_link * (l_count * cosf(alpha[0]) + lc * cosf(alpha[1])) +
-                        m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1])));
+    float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
+    // 关节1：承载整个系统
+    t_output[0] = g_count * (
+      m_link * lc * cosf(alpha[0]) + 
+      m_motor * l_count * cosf(alpha[0]) + 
+      m_link * (l_count * cosf(alpha[0]) + lc * cosf(alpha[1])) +
+      m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1])) +
+      m_link * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + lc * cosf(alpha[2]))
+    );
 
-// 关节2重力补偿力矩：承载连杆2 + 末端电机重量  
-t_output[1] = (g_count * (m_link * lc * cosf(alpha[1]) + 
-                        m_motor * l_count * cosf(alpha[1]))) * (-1.0f);
+    // 关节2：承载连杆2+电机3+连杆3
+    t_output[1] = g_count * (
+      m_link * lc * cosf(alpha[1]) +
+      m_motor * l_count * cosf(alpha[1]) +
+      m_link * (l_count * cosf(alpha[1]) + lc * cosf(alpha[2]))
+    ) * (-1.0f);
 
-  // 参数定义（保持您的风格）
-//  float m_link = 0.120f, g_count = 9.8f, lc = 0.06f, l_count = 0.12f, m_motor = 0.280f;
-
-//  // 关节1重力补偿力矩：τ? = g × [m?×lc×cos(θ?) + m_motor×l?×cos(θ?) + m?×(l?×cos(θ?) + lc?×cos(θ?+θ?))]
-//  t_output[0] = g_count * (m_link * lc * cosf(alpha[0]) + 
-//                        m_motor * l_count * cosf(alpha[0]) + 
-//                        m_link * (l_count * cosf(alpha[0]) + lc * cosf(alpha[1])));
-
-//  // 关节2重力补偿力矩：τ? = g × m? × lc? × cos(θ?+θ?)
-//  t_output[1] = (-1.0f)*(g_count * m_link * lc * cosf(alpha[1]) + g_count * m_motor * l_count * cosf(alpha[1])) ;
-//    
+    // 关节3：仅承载连杆3  
+    t_output[2] = g_count * m_link * lc * cosf(alpha[2]);
     //施加力矩到关节电机
     mit_ctrl(&hfdcan1,0x00,0,0,0,0,t_output[0]);
 		HAL_Delay(1);
     mit_ctrl(&hfdcan1,0x02,0,0,0,0,t_output[1]);
 		HAL_Delay(1);
-//		mit_ctrl(&hfdcan1,0x04,0,0,0,0,0);
-//		HAL_Delay(1);
+		mit_ctrl(&hfdcan1,0x04,0,0,0,0,t_output[2]);
+		HAL_Delay(1);
 
       /* USER CODE END WHILE */
 
