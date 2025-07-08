@@ -46,6 +46,7 @@
 #include "dmotor.h"
 #include "mc.h"
 #include "rc.h"
+#include "vofa.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,17 +68,10 @@
 
 /* USER CODE BEGIN PV */
 volatile float X_IN = 0,Y_IN = 0;
-
-
-extern float jxb_motor_pos[7];
-
 uint8_t uart_count;
 uint8_t rx_buffer[50];
 uint8_t test_flag;
 volatile float tar_buffer[20];
-volatile float t_output[6],xita_jxb[6];
-volatile float alpha[6];
-float debug_fuhao = 1,debug_fuhao2 = -1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,19 +134,17 @@ int main(void)
 	HAL_Delay(1000);
 	
   mc_init(); //电机系统初始化，开启所有电机
-//	motor_change_work_mode(&hfdcan1, 3, MOTOR_MODE_POSITION_SPEED);
-//	HAL_Delay(8000);
-//	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//		uint8_t tx_buffer[10] = "hello!";
-//		CDC_Transmit_HS(tx_buffer, 10);
-		robot_arm(30,30);
-		delay_ms(1000);
+	  extern volatile float t_output[6];
+	  vofa_send_data(0,t_output[0]);
+	  vofa_send_data(1,t_output[1]);
+	  vofa_send_data(2,t_output[2]);
+	  vofa_sendframetail();
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

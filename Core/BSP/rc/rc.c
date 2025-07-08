@@ -136,92 +136,19 @@ solution_found:
     count = 0;
 }
 
-// 方法2：使用标志变量（更符合某些编程规范）
-void robot_arm_v2(float X, float Y) 
-{ 
-    my_printf("start to arm counter!\r\n");
-    
-    Z = 15;
-    J1 = atanf((P + Y) / X);
-    if (J1 < 0)
-    {
-        J1 = fabsf(J1) + 3.14f;
-    }
-    
-    high = Z + 3;
-    len = sqrtf(X * X + (P + Y) * (P + Y));
-    
-    forward_count = HAL_GetTick();
-    
-    int solution_found = 0; // 标志变量
-    
-    for (J2 = -1.57; J2 < 1.57 && !solution_found; J2 += bu_chang)
-    {
-        for (J3 = 0; J3 < 3.14 && !solution_found; J3 += bu_chang)
-        {
-            for (J4 = 0; J4 < 3.14 && !solution_found; J4 += bu_chang)
-            {
-                for (J5 = 0; J5 < 3.14 && !solution_found; J5 += bu_chang)
-                {
-                    total_iterations++;
-                    
-                    if ((J2 + J3 + J4 + J5) > 3.14)
-                    {
-                        error_314_count++;
-                        continue;
-                    }
-                    youxiao_count++;
-                    
-                    fast_sin_cos(J2, &s2, &c2);
-                    fast_sin_cos(J2 + J3, &s23, &c23);
-                    fast_sin_cos(J2 + J3 + J4, &s234, &c234);
-                    fast_sin_cos(J2 + J3 + J4 + J5, &s2345, &c2345);
-                    
-                    cur_high = A1 + A2 * c2 + A3 * c23 + A4 * c234 + A5 * c2345;
-                    cur_len = A2 * s2 + A3 * s23 + A4 * s234 + A5 * s2345;
-                    
-                    if (fabsf(cur_high - high) < tolerance && fabsf(len - cur_len) < tolerance)
-                    {
-                        count++;
-                        test_motor1 = J1;
-                        test_motor2 = J2;
-                        test_motor3 = J3;
-                        test_motor4 = J4;
-                        test_motor5 = J5;
-                        my_printf("Solution found - J1:%.3f, J2:%.3f, J3:%.3f, J4:%.3f, J5:%.3f\n", 
-                                 J1, J2, J3, J4, J5);
-                        
-                        solution_found = 1; // 设置标志变量
-                    }
-                }
-            }
-        }
-    }
-    
-    backward_count = HAL_GetTick();
-    uint32_t execution_time = backward_count - forward_count;
-    
-    if (count > 0) {
-        my_printf("Solution found successfully!\n");
-    } else {
-        my_printf("No solution found within tolerance.\n");
-    }
-    
-    my_printf("Total counter: %llu\n", total_iterations);
-    my_printf("total time: %lu ms\n", execution_time);
-    
-    total_iterations = 0;
-    count = 0;
-}
-
-void Gravity_Compensation()
+volatile float t_output[6],xita_jxb[6];
+volatile float alpha[6];
+extern float jxb_motor_pos[7];
+float debug_fuhao = 1,debug_fuhao2 = -1;
+extern float motor_pos[MAX_MOTOR_COUNT];
+float m_link = 0.149f, g_count = 9.8f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
+void Gravity_Compensation(void)
 {
-/*
     //------------------- 1. 修正角度 -------------------
     // 将原始角度 xita 修正为机械臂实际关节角度 xita_jxb
-    xita_jxb[0] = xita[0] + 3.14f/2;   // 关节1角度加90度
-    xita_jxb[1] = - xita[1];           // 关节2角度取反
-    xita_jxb[2] = xita[2];             // 关节3角度不变
+    xita_jxb[0] = motor_pos[0] + 3.14f/2;   // 关节1角度加90度
+    xita_jxb[1] = - motor_pos[1];           // 关节2角度取反
+    xita_jxb[2] = motor_pos[2];             // 关节3角度不变
     
     //------------------- 2. 计算各关节的绝对角度 alpha -------------------
     // alpha[i] 表示第i个关节的绝对角度（从基座到该关节的总旋转角度）
@@ -230,7 +157,7 @@ void Gravity_Compensation()
     alpha[2] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2];
     
     //------------------- 3. 定义机械参数 -------------------
-    float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
+//    float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
     // m_link: 单根连杆质量
     // m_motor: 单个电机质量
     // lc: 连杆质心到关节距离
@@ -261,11 +188,8 @@ void Gravity_Compensation()
     //------------------- 5. 发送力矩指令到各关节电机 -------------------
     
     // 依次给3个关节电机发送力矩控制指令
-    mit_ctrl(&hfdcan1,0x00,0,0,0,0,t_output[0]);
-    HAL_Delay(1);
-    mit_ctrl(&hfdcan1,0x02,0,0,0,0,t_output[1]);
-    HAL_Delay(1);
-    mit_ctrl(&hfdcan1,0x04,0,0,0,0,t_output[2]);
-    HAL_Delay(1);    
-*/
+    mit_ctrl(&hfdcan1,0,0,0,0,0,t_output[0]);
+    mit_ctrl(&hfdcan1,1,0,0,0,0,t_output[1]);
+    mit_ctrl(&hfdcan1,2,0,0,0,0,t_output[2]);
+    // HAL_Delay(1);    
 }

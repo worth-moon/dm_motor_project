@@ -38,4 +38,4 @@ end/mc.o: ..\Core\BSP\mc\mc.c ..\Core\BSP\mc\mc.h ..\Core\Inc\main.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h \
   ..\Core\BSP\can\can_bsp.h ..\Core\Inc\fdcan.h \
   ..\Core\BSP\dmotor\dmotor.h ..\Core\BSP\delay\delay.h \
-  ..\Core\Inc\tim.h
+  ..\Core\Inc\tim.h ..\Core\BSP\rc\rc.h

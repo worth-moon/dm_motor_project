@@ -2,6 +2,7 @@
 #include "fdcan.h"
 #include "delay.h"
 #include "tim.h"
+#include "rc.h"
 //使能全部电机
 void mc_init(void)
 {
@@ -16,7 +17,8 @@ void mc_init(void)
 //心跳函数，10ms一次
 void mc_run(void)
 {
-    pos_speed_ctrl(&hfdcan1,3,0.0f,1.0f);
+	Gravity_Compensation();
+    //pos_speed_ctrl(&hfdcan1,3,0.0f,1.0f);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
