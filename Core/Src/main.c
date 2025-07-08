@@ -140,15 +140,19 @@ int main(void)
 	HAL_Delay(1000);
 	
   mc_init(); //电机系统初始化，开启所有电机
-	motor_change_work_mode(&hfdcan1, 3, MOTOR_MODE_POSITION_SPEED);
-	HAL_Delay(8000);
-	robot_arm(10,20);
+//	motor_change_work_mode(&hfdcan1, 3, MOTOR_MODE_POSITION_SPEED);
+//	HAL_Delay(8000);
+//	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//		uint8_t tx_buffer[10] = "hello!";
+//		CDC_Transmit_HS(tx_buffer, 10);
+		robot_arm(30,30);
+		delay_ms(1000);
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

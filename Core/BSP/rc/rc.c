@@ -21,7 +21,7 @@ float Z = 0.0f;
 
 // 机器人参数
 float bu_chang = 0.1f;             // 角度搜索步长 (约5.7度)
-float tolerance = 0.01f;           // 位置误差容忍度
+float tolerance = 0.1f;           // 位置误差容忍度
 float P = 5.0f;                    // 基座偏移参数 - 假定为机械臂底部，抓不到的一个圆形直径
 
 // DH参数 - 连杆长度
@@ -55,21 +55,24 @@ float test_motor3 = 0.0f;          // 测试电机3角度 (y轴)
 float test_motor4 = 0.0f;          // 测试电机4角度 (y轴)
 float test_motor5 = 0.0f;          // 测试电机5角度 (y轴)
 
+// 方法1：使用goto语句（推荐，简洁直接）
 void robot_arm(float X, float Y) 
-{
-    //X = 10; Y = 20; Z = 5;
-    Z = 15;//
+{ 
+    my_printf("start to arm counter!\r\n");
+    
+    Z = 15;
     J1 = atanf((P + Y) / X);
     if (J1 < 0)
     {
         J1 = fabsf(J1) + 3.14f;
     }
-
+    
     high = Z + 3;
     len = sqrtf(X * X + (P + Y) * (P + Y));
-
+    
     forward_count = HAL_GetTick();
-    for (J2 = -0.785; J2 < 0.785; J2 += bu_chang)//-pi/4~pi/4
+    
+    for (J2 = -1.57; J2 < 1.57; J2 += bu_chang) // -pi/4~pi/4
     {
         for (J3 = 0; J3 < 3.14; J3 += bu_chang)
         {
@@ -78,25 +81,25 @@ void robot_arm(float X, float Y)
                 for (J5 = 0; J5 < 3.14; J5 += bu_chang)
                 {
                     total_iterations++; // 记录总循环次数
-
+                    
                     // 检查 J2 + J3 + J4 + J5 是否超过 3.14 (修改为4个电机)
                     if ((J2 + J3 + J4 + J5) > 3.14)
                     {
                         error_314_count++; // 记录错误次数
                         continue; // 跳过当前组合，不计入 count
                     }
-                    youxiao_count++;  //
+                    youxiao_count++;
                     
                     // 使用fast_sin_cos函数计算三角函数值（4个y轴电机）
                     fast_sin_cos(J2, &s2, &c2);
                     fast_sin_cos(J2 + J3, &s23, &c23);
                     fast_sin_cos(J2 + J3 + J4, &s234, &c234);
                     fast_sin_cos(J2 + J3 + J4 + J5, &s2345, &c2345);
-
+                    
                     // 正运动学计算（去掉A6项）
                     cur_high = A1 + A2 * c2 + A3 * c23 + A4 * c234 + A5 * c2345;
                     cur_len = A2 * s2 + A3 * s23 + A4 * s234 + A5 * s2345;
-
+                    
                     if (fabsf(cur_high - high) < tolerance && fabsf(len - cur_len) < tolerance)
                     {
                         count++;
@@ -105,20 +108,110 @@ void robot_arm(float X, float Y)
                         test_motor3 = J3;   // y轴电机2
                         test_motor4 = J4;   // y轴电机3
                         test_motor5 = J5;   // y轴电机4
-                        my_printf("Solution %d found - J1:%.3f, J2:%.3f, J3:%.3f, J4:%.3f, J5:%.3f\n", count, J1, J2, J3, J4, J5);
-                        //sprintf(tx_buffer, "Solution %d found - J1:%.3f, J2:%.3f, J3:%.3f, J4:%.3f, J5:%.3f\n", count, J1, J2, J3, J4, J5);
-                        //CDC_Transmit_HS(tx_buffer, strlen((const char*)tx_buffer));
+                        my_printf("Solution found - J1:%.3f, J2:%.3f, J3:%.3f, J4:%.3f, J5:%.3f\n", 
+                                 J1, J2, J3, J4, J5);
+                        
+                        // 找到解后立即退出所有循环
+                        goto solution_found;
                     }
                 }
             }
         }
     }
+    
+solution_found:
     backward_count = HAL_GetTick();
     uint32_t execution_time = backward_count - forward_count;
-    my_printf("Total valid angle combinations found: %d\n", count);
-    my_printf("Combinations exceeding 3.14 constraint: %d\n", error_314_count);
-    my_printf("Total iterations: %llu\n", total_iterations);
-    my_printf("Execution time: %lu ms\n", execution_time);
+    
+    if (count > 0) {
+        my_printf("Solution found successfully!\n");
+    } else {
+        my_printf("No solution found within tolerance.\n");
+    }
+    
+    my_printf("Total counter: %llu\n", total_iterations);
+    my_printf("total time: %llu ms\n", execution_time);
+    
+    total_iterations = 0;
+    count = 0;
+}
+
+// 方法2：使用标志变量（更符合某些编程规范）
+void robot_arm_v2(float X, float Y) 
+{ 
+    my_printf("start to arm counter!\r\n");
+    
+    Z = 15;
+    J1 = atanf((P + Y) / X);
+    if (J1 < 0)
+    {
+        J1 = fabsf(J1) + 3.14f;
+    }
+    
+    high = Z + 3;
+    len = sqrtf(X * X + (P + Y) * (P + Y));
+    
+    forward_count = HAL_GetTick();
+    
+    int solution_found = 0; // 标志变量
+    
+    for (J2 = -1.57; J2 < 1.57 && !solution_found; J2 += bu_chang)
+    {
+        for (J3 = 0; J3 < 3.14 && !solution_found; J3 += bu_chang)
+        {
+            for (J4 = 0; J4 < 3.14 && !solution_found; J4 += bu_chang)
+            {
+                for (J5 = 0; J5 < 3.14 && !solution_found; J5 += bu_chang)
+                {
+                    total_iterations++;
+                    
+                    if ((J2 + J3 + J4 + J5) > 3.14)
+                    {
+                        error_314_count++;
+                        continue;
+                    }
+                    youxiao_count++;
+                    
+                    fast_sin_cos(J2, &s2, &c2);
+                    fast_sin_cos(J2 + J3, &s23, &c23);
+                    fast_sin_cos(J2 + J3 + J4, &s234, &c234);
+                    fast_sin_cos(J2 + J3 + J4 + J5, &s2345, &c2345);
+                    
+                    cur_high = A1 + A2 * c2 + A3 * c23 + A4 * c234 + A5 * c2345;
+                    cur_len = A2 * s2 + A3 * s23 + A4 * s234 + A5 * s2345;
+                    
+                    if (fabsf(cur_high - high) < tolerance && fabsf(len - cur_len) < tolerance)
+                    {
+                        count++;
+                        test_motor1 = J1;
+                        test_motor2 = J2;
+                        test_motor3 = J3;
+                        test_motor4 = J4;
+                        test_motor5 = J5;
+                        my_printf("Solution found - J1:%.3f, J2:%.3f, J3:%.3f, J4:%.3f, J5:%.3f\n", 
+                                 J1, J2, J3, J4, J5);
+                        
+                        solution_found = 1; // 设置标志变量
+                    }
+                }
+            }
+        }
+    }
+    
+    backward_count = HAL_GetTick();
+    uint32_t execution_time = backward_count - forward_count;
+    
+    if (count > 0) {
+        my_printf("Solution found successfully!\n");
+    } else {
+        my_printf("No solution found within tolerance.\n");
+    }
+    
+    my_printf("Total counter: %llu\n", total_iterations);
+    my_printf("total time: %lu ms\n", execution_time);
+    
+    total_iterations = 0;
+    count = 0;
 }
 
 void Gravity_Compensation()
