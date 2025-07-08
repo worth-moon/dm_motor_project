@@ -6,7 +6,7 @@
 //使能全部电机
 void mc_init(void)
 {
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 4; i++)
     {
         all_motors_enable(&hfdcan1);
         delay_ms(10);
