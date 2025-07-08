@@ -72,6 +72,9 @@ uint8_t uart_count;
 uint8_t rx_buffer[50];
 uint8_t test_flag;
 volatile float tar_buffer[20];
+volatile uint8_t shijiao_rx_data[5];
+volatile uint8_t shijiao_display_data;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -133,19 +136,23 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN 可控开关2
 	HAL_Delay(1000);
 	
-  mc_init(); //电机系统初始化，开启所有电机
-  motor_change_work_mode(&hfdcan1,3,MOTOR_MODE_POSITION_SPEED);
+  //mc_init(); //电机系统初始化，开启所有电机
+  //motor_change_work_mode(&hfdcan1,3,MOTOR_MODE_POSITION_SPEED);
+  HAL_UART_Receive_IT(&huart7, shijiao_rx_data, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  extern volatile float t_output[6];
-	  vofa_send_data(0,t_output[0]);
-	  vofa_send_data(1,t_output[1]);
-	  vofa_send_data(2,t_output[2]);
-	  vofa_sendframetail();
+	  CDC_Transmit_HS(&shijiao_display_data,1);
+	  //HAL_UART_Transmit(&huart7,&shijiao_display_data,1,1000);
+	  delay_ms(500);
+//	  extern volatile float t_output[6];
+//	  vofa_send_data(0,t_output[0]);
+//	  vofa_send_data(1,t_output[1]);
+//	  vofa_send_data(2,t_output[2]);
+//	  vofa_sendframetail();
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -214,7 +221,43 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+{
+//	if(huart->Instance == UART7)
+//	{
+		switch(shijiao_rx_data[0])
+		{
+			case 0x00:
+				shijiao_display_data = 0x00;
+				break;
+			case 0x01:
+				shijiao_display_data = 0x01;
+				break;
+			case 0x02:
+				shijiao_display_data = 0x02;
+				break;
+			case 0x03:
+				shijiao_display_data = 0x03;
+				break;
+			case 0x04:
+				shijiao_display_data = 0x04;
+				break;
+			case 0x05:
+				shijiao_display_data = 0x05;
+				break;
+			case 0x06:
+				shijiao_display_data = 0x06;
+				break;
+			case 0x07:
+				shijiao_display_data = 0x07;
+				break;
+			default:
+				// 未知指令处理
+				break;
+		}
+    HAL_UART_Receive_IT(&huart7, shijiao_rx_data, 1);
+	//}
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */

@@ -27,7 +27,30 @@ Project File Date:  07/08/2025
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'E:\KEIL\ARM\ARMCLANG\Bin'
 Build target 'end'
-"end\end.axf" - 0 Error(s), 0 Warning(s).
+../Core/Src/main.c(141): warning: passing 'volatile uint8_t[5]' (aka 'volatile unsigned char[5]') to parameter of type 'uint8_t *' (aka 'unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+  141 |   HAL_UART_Receive_IT(&huart7, shijiao_rx_data, 1);
+      |                                ^~~~~~~~~~~~~~~
+../Drivers/STM32H7xx_HAL_Driver/Inc\stm32h7xx_hal_uart.h(1640): note: passing argument to parameter 'pData' here
+ 1640 | HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+      |                                                                           ^
+../Core/Src/main.c(148): warning: passing 'volatile uint8_t *' (aka 'volatile unsigned char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+  148 |           CDC_Transmit_HS(&shijiao_display_data,1);
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+../Core/Src/main.c(84): note: passing argument to parameter 'Buf' here
+   84 | extern uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len);
+      |                                         ^
+../Core/Src/main.c(258): warning: passing 'volatile uint8_t[5]' (aka 'volatile unsigned char[5]') to parameter of type 'uint8_t *' (aka 'unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+  258 |     HAL_UART_Receive_IT(&huart7, shijiao_rx_data, 1);
+      |                                  ^~~~~~~~~~~~~~~
+../Drivers/STM32H7xx_HAL_Driver/Inc\stm32h7xx_hal_uart.h(1640): note: passing argument to parameter 'pData' here
+ 1640 | HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+      |                                                                           ^
+3 warnings generated.
+compiling main.c...
+linking...
+Program Size: Code=51108 RO-data=1012 RW-data=324 ZI-data=9376  
+FromELF: creating hex file...
+"end\end.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +73,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
