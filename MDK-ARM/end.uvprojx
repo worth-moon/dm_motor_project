@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,ARM_MATH_LOOPUNROLL</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;..\Drivers\CMSIS\DSP\Include</IncludePath>
+              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;..\Drivers\CMSIS\DSP\Include;..\Core\BSP\can;..\Core\BSP\delay;..\Core\BSP\dmotor;..\Core\BSP\mc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -395,46 +395,6 @@
         <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
-            <File>
-              <FileName>can_bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\can_bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>can_bsp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Core\Src\can_bsp.h</FilePath>
-            </File>
-            <File>
-              <FileName>delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>delay.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Core\Src\delay.h</FilePath>
-            </File>
-            <File>
-              <FileName>lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Inc\lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>lcd.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Core\Inc\lcd.h</FilePath>
-            </File>
-            <File>
-              <FileName>lcdfont.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Core\Inc\lcdfont.h</FilePath>
-            </File>
-            <File>
-              <FileName>pic.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Core\Inc\pic.h</FilePath>
-            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -1265,6 +1225,66 @@
         </Group>
         <Group>
           <GroupName>CMSIS/DSP</GroupName>
+        </Group>
+        <Group>
+          <GroupName>BSP/CAN</GroupName>
+          <Files>
+            <File>
+              <FileName>can_bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\can\can_bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>can_bsp.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\can\can_bsp.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/DELAY</GroupName>
+          <Files>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\delay\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\delay\delay.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/DMOTOR</GroupName>
+          <Files>
+            <File>
+              <FileName>dmotor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\dmotor\dmotor.c</FilePath>
+            </File>
+            <File>
+              <FileName>dmotor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\dmotor\dmotor.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/DMOTOR_MC</GroupName>
+          <Files>
+            <File>
+              <FileName>mc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\mc\mc.c</FilePath>
+            </File>
+            <File>
+              <FileName>mc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\mc\mc.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>::CMSIS</GroupName>

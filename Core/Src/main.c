@@ -43,6 +43,8 @@
 #include "math.h"
 
 #include "arm_math.h"
+#include "dmotor.h"
+#include "mc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -177,80 +179,18 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN 可控开关2
 	HAL_Delay(1000);
 	
-	uint8_t data[8];
-	data[0] = 0xFF;
-	data[1] = 0xFF;
-	data[2] = 0xFF;
-	data[3] = 0xFF;
-	data[4] = 0xFF;
-	data[5] = 0xFF;
-	data[6] = 0xFF;
-	data[7] = 0xFC;
-
-    uint8_t disable_data[8] = {0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFD};
-	
-    fdcanx_send_data(&hfdcan1,0x00,data,8);//使能
-		HAL_Delay(10);
-    fdcanx_send_data(&hfdcan1,0x02,data,8);
-    HAL_Delay(10);
-		fdcanx_send_data(&hfdcan1,0x04,data,8);
-    HAL_Delay(10);
+  mc_init(); //电机系统初始化，开启所有电机
+		
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    //------------------- 1. 修正角度 -------------------
-    // 将原始角度 xita 修正为机械臂实际关节角度 xita_jxb
-    xita_jxb[0] = xita[0] + 3.14f/2;   // 关节1角度加90度
-    xita_jxb[1] = - xita[1];           // 关节2角度取反
-    xita_jxb[2] = xita[2];             // 关节3角度不变
-    
-    //------------------- 2. 计算各关节的绝对角度 alpha -------------------
-    // alpha[i] 表示第i个关节的绝对角度（从基座到该关节的总旋转角度）
-    alpha[0] = xita_jxb[0];
-    alpha[1] = xita_jxb[0] + xita_jxb[1];
-    alpha[2] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2];
-    
-    //------------------- 3. 定义机械参数 -------------------
-    float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
-    // m_link: 单根连杆质量
-    // m_motor: 单个电机质量
-    // lc: 连杆质心到关节距离
-    // l_count: 连杆长度
-    // g_count: 重力加速度
-    
-    //------------------- 4. 计算各关节所需力矩 -------------------
-    
-    // 关节1：承载整个系统的重力分量
-    t_output[0] = g_count * (
-      m_link * lc * cosf(alpha[0]) + 
-      m_motor * l_count * cosf(alpha[0]) + 
-      m_link * (l_count * cosf(alpha[0]) + lc * cosf(alpha[1])) +
-      m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1])) +
-      m_link * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + lc * cosf(alpha[2]))
-    );
-    
-    // 关节2：承载连杆2、电机3、连杆3的重力分量
-    t_output[1] = g_count * (
-      m_link * lc * cosf(alpha[1]) +
-      m_motor * l_count * cosf(alpha[1]) +
-      m_link * (l_count * cosf(alpha[1]) + lc * cosf(alpha[2]))
-    ) * (-1.0f); // 注意方向为负
-    
-    // 关节3：仅承载连杆3的重力分量
-    t_output[2] = g_count * m_link * lc * cosf(alpha[2]);
-    
-    //------------------- 5. 发送力矩指令到各关节电机 -------------------
-    
-    // 依次给3个关节电机发送力矩控制指令
-    mit_ctrl(&hfdcan1,0x00,0,0,0,0,t_output[0]);
-    HAL_Delay(1);
-    mit_ctrl(&hfdcan1,0x02,0,0,0,0,t_output[1]);
-    HAL_Delay(1);
-    mit_ctrl(&hfdcan1,0x04,0,0,0,0,t_output[2]);
-    HAL_Delay(1);
+		// HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_SET);
+		// 
+		// HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0,GPIO_PIN_RESET);
+		// delay_ms(10);
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -381,7 +321,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
     if (uart_count > uart_rx_len)
     {
         //test_flag = openmv_data_process_flag(rx_buffer, strlen((const char*)rx_buffer), target_flag);
-        test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, tar_buffer);
+        test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, (float *)tar_buffer);
 		X_IN = tar_buffer[0];
 		Y_IN = tar_buffer[1];
         uart_count = 0;

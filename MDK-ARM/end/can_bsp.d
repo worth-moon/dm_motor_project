@@ -1,4 +1,4 @@
-end/can_bsp.o: ..\Core\Src\can_bsp.c ..\Core\Src\can_bsp.h \
+end/can_bsp.o: ..\Core\BSP\can\can_bsp.c ..\Core\BSP\can\can_bsp.h \
   ..\Core\Inc\main.h ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \

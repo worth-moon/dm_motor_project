@@ -1,8 +1,5 @@
 --cpu Cortex-M7.fp.dp
 "end\startup_stm32h723xx.o"
-"end\can_bsp.o"
-"end\delay.o"
-"end\lcd.o"
 "end\main.o"
 "end\gpio.o"
 "end\adc.o"
@@ -51,6 +48,10 @@
 "end\usbd_ctlreq.o"
 "end\usbd_ioreq.o"
 "end\usbd_cdc.o"
+"end\can_bsp.o"
+"end\delay.o"
+"end\dmotor.o"
+"end\mc.o"
 --strict --scatter "end\end.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

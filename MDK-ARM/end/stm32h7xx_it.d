@@ -36,4 +36,5 @@ end/stm32h7xx_it.o: ..\Core\Src\stm32h7xx_it.c ..\Core\Inc\main.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h \
-  ..\Core\Inc\stm32h7xx_it.h ..\Core\Src\can_bsp.h ..\Core\Inc\fdcan.h
+  ..\Core\Inc\stm32h7xx_it.h ..\Core\BSP\can\can_bsp.h \
+  ..\Core\Inc\fdcan.h

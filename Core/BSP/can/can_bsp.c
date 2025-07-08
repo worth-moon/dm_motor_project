@@ -1,4 +1,5 @@
 #include "can_bsp.h"
+#include "stdbool.h"
 /**
 ************************************************************************
 * @brief:      	can_bsp_init(void)
@@ -50,23 +51,55 @@ void can_filter_init(void)
 * @details:    	发送数据
 ************************************************************************
 **/
-uint8_t fdcanx_send_data(FDCAN_HandleTypeDef *hfdcan, uint16_t id, uint8_t *data, uint32_t len)
-{	
-	FDCAN_TxHeaderTypeDef TxHeader;
-	
-  TxHeader.Identifier = id;
-  TxHeader.IdType = FDCAN_STANDARD_ID;																// 标准ID 
-  TxHeader.TxFrameType = FDCAN_DATA_FRAME;														// 数据帧 
-  TxHeader.DataLength = len << 16;																		// 发送数据长度 
-  TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;										// 设置错误状态指示 								
-  TxHeader.BitRateSwitch = FDCAN_BRS_OFF;															// 不开启可变波特率 
-  TxHeader.FDFormat = FDCAN_CLASSIC_CAN;															// 普通CAN格式 
-  TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;										// 用于发送事件FIFO控制, 不存储 
-  TxHeader.MessageMarker = 0x00; 			// 用于复制到TX EVENT FIFO的消息Maker来识别消息状态，范围0到0xFF                
+uint8_t fdcanx_send_data(FDCAN_HandleTypeDef *hfdcan, uint16_t id, uint8_t *data, uint32_t len) 
+{	 
+    FDCAN_TxHeaderTypeDef TxHeader; 
+    uint32_t timeout = 1000; // 超时计数，防止死循环
     
-  if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, data)!=HAL_OK) 
-		return 1;//发送
-	return 0;	
+    // 参数检查
+    if(hfdcan == NULL || data == NULL || len > 8) 
+    {
+        return 1;
+    }
+    
+    // 检查FIFO是否有空间
+    if(HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0) 
+    {
+        return 1; // FIFO已满，无法发送
+    }
+   
+    // 配置发送头部
+    TxHeader.Identifier = id;
+    TxHeader.IdType = FDCAN_STANDARD_ID;                    // 标准ID
+    TxHeader.TxFrameType = FDCAN_DATA_FRAME;                // 数据帧
+    TxHeader.DataLength = len << 16;                        // 发送数据长度(需要左移16位)
+    TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;        // 设置错误状态指示
+    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;                 // 不开启可变波特率
+    TxHeader.FDFormat = FDCAN_CLASSIC_CAN;                  // 普通CAN格式
+    TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;       // 不存储发送事件
+    TxHeader.MessageMarker = 0x00;                          // 消息标记
+    
+    // 将消息添加到发送FIFO
+    if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, data) != HAL_OK) 
+    {
+        return 1; // 发送失败
+    }
+    
+    // 等待消息发送完成 - 检查邮箱是否有三个空闲
+    while(timeout > 0) 
+    {
+        if(HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) >= 3) 
+        {
+            break;
+        }
+        timeout--;
+    }
+    
+    if(timeout == 0) {
+        return 1; // 超时，发送可能失败
+    }
+    
+    return 0; // 发送成功
 }
 /**
 ************************************************************************
@@ -96,6 +129,7 @@ uint8_t fdcanx_receive(FDCAN_HandleTypeDef *hfdcan, uint16_t *rec_id, uint8_t *b
 * @details:    	HAL库的FDCAN中断回调函数
 ************************************************************************
 **/
+void fdcan1_rx_callback(void);
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
   if((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
@@ -112,7 +146,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 #define MOTOR_ID_COUNT 6  // 实际使用的电机数量
 
 // 电机ID映射表 - 集中管理，便于修改
-const uint8_t MOTOR_ID_MAP[MOTOR_ID_COUNT] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+const uint8_t MOTOR_ID_MAP[MOTOR_ID_COUNT] = {0x01, 0x03, 0x05, 0x07, 0x05, 0x06};
 
 // 数据变量定义
 uint16_t v_int, t_int;
@@ -124,6 +158,9 @@ float pos[MAX_MOTOR_COUNT], jd_pos[MAX_MOTOR_COUNT];
 uint16_t pos_int[MAX_MOTOR_COUNT];
 float jxb_motor_pos[MAX_MOTOR_COUNT + 1];  // 根据需要调整
 float xita[MAX_MOTOR_COUNT];
+
+
+
 
 // 数据转换函数保持不变
 float uint_to_float(int x_int, float x_min, float x_max, int bits) 

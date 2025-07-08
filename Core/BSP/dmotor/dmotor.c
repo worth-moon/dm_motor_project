@@ -30,11 +30,17 @@ typedef enum {
 
 
 // 电机CAN ID映射表 - 基础ID，控制模式会在此基础上加偏移
-const uint16_t MOTOR_CAN_ID_MAP[MOTOR_ID_COUNT] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+const uint16_t MOTOR_CAN_ID_MAP[MOTOR_ID_COUNT] = {0x00, 0x02, 0x04, 0x06, 0x05, 0x06};
 
 // 电机使能/失能命令数据
 const uint8_t MOTOR_ENABLE_DATA[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
 const uint8_t MOTOR_DISABLE_DATA[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFD};
+
+// 检查电机索引有效性
+bool is_motor_index_valid_for_control(uint8_t motor_index)
+{
+    return (motor_index < MOTOR_ID_COUNT);
+}
 
 // 单个电机使能 - 基于索引
 void motor_enable(hcan_t* hcan, uint8_t motor_index)
@@ -113,12 +119,6 @@ int float_to_uint(float x_float, float x_min, float x_max, int bits)
     float span = x_max - x_min;
     float offset = x_min;
     return (int)((x_float - offset) * ((float)((1 << bits) - 1)) / span);
-}
-
-// 检查电机索引有效性
-bool is_motor_index_valid_for_control(uint8_t motor_index)
-{
-    return (motor_index < MOTOR_ID_COUNT);
 }
 
 // MIT模式控制 - 基于索引
