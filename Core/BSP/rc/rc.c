@@ -136,40 +136,45 @@ solution_found:
     count = 0;
 }
 
-volatile float t_output[6],xita_jxb[6];
-volatile float alpha[6];
-extern float jxb_motor_pos[7];
-float debug_fuhao = 1,debug_fuhao2 = -1;
-extern float motor_pos[MAX_MOTOR_COUNT];
-float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.395f; 
+#define ADD_LINK
+#ifdef ADD_LINK
 
-void Gravity_Compensation(void)
+volatile float t_output[6],xita_jxb[6]; 
+volatile float alpha[6]; 
+extern float jxb_motor_pos[7]; 
+float debug_fuhao = 1,debug_fuhao2 = -1; 
+extern float motor_pos[MAX_MOTOR_COUNT]; 
+
+// 机械参数
+float m_link = 0.149f;          // 连杆质量
+float g_count = 10.0f;          // 重力加速度
+float lc = 0.06f;               // 连杆质心到关节距离
+float l_count = 0.12f;          // 连杆长度
+float m_motor = 0.395f;         // 电机质量
+
+// 负载参数（新增）
+float m_payload = 0.100f;       // 负载质量
+float lc_payload = 0.12f;       // 负载重心到连杆4末端的距离
+
+void Gravity_Compensation(void) 
 {
     //------------------- 1. 修正角度 -------------------
     // 将原始角度 xita 修正为机械臂实际关节角度 xita_jxb
     xita_jxb[0] = motor_pos[0] + 3.14f/2;   // 关节1角度加90度
     xita_jxb[1] = - motor_pos[1];           // 关节2角度取反
     xita_jxb[2] = motor_pos[2];             // 关节3角度不变
-    xita_jxb[3] = -motor_pos[3];             // 关节4角度不变
-    
+    xita_jxb[3] = -motor_pos[3];            // 关节4角度不变
+        
     //------------------- 2. 计算各关节的绝对角度 alpha -------------------
     // alpha[i] 表示第i个关节的绝对角度（从基座到该关节的总旋转角度）
     alpha[0] = xita_jxb[0];
     alpha[1] = xita_jxb[0] + xita_jxb[1];
     alpha[2] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2];
     alpha[3] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2] + xita_jxb[3];
-    
-    //------------------- 3. 定义机械参数 -------------------
-//    float m_link = 0.149f, g_count = 10.0f, lc = 0.06f, l_count = 0.12f, m_motor = 0.345f; 
-    // m_link: 单根连杆质量
-    // m_motor: 单个电机质量
-    // lc: 连杆质心到关节距离
-    // l_count: 连杆长度
-    // g_count: 重力加速度
-    
-    //------------------- 4. 计算各关节所需力矩 -------------------
-    
-    // 关节1：承载整个系统的重力分量（连杆1+电机2+连杆2+电机3+连杆3+电机4+连杆4）
+        
+    //------------------- 3. 计算各关节所需力矩 -------------------
+        
+    // 关节1：承载整个系统的重力分量（连杆1+电机2+连杆2+电机3+连杆3+电机4+连杆4+负载）
     t_output[0] = g_count * (
       // 连杆1的重力分量
       m_link * lc * cosf(alpha[0]) + 
@@ -184,10 +189,12 @@ void Gravity_Compensation(void)
       // 电机4的重力分量
       m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + l_count * cosf(alpha[2])) +
       // 连杆4的重力分量
-      m_link * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + lc * cosf(alpha[3]))
+      m_link * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + lc * cosf(alpha[3])) +
+      // 负载的重力分量（连杆4后面）
+      m_payload * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + (l_count + lc_payload) * cosf(alpha[3]))
     );
-    
-    // 关节2：承载连杆2、电机3、连杆3、电机4、连杆4的重力分量
+        
+    // 关节2：承载连杆2、电机3、连杆3、电机4、连杆4、负载的重力分量
     t_output[1] = g_count * (
       // 连杆2的重力分量
       m_link * lc * cosf(alpha[1]) +
@@ -198,28 +205,111 @@ void Gravity_Compensation(void)
       // 电机4的重力分量
       m_motor * (l_count * cosf(alpha[1]) + l_count * cosf(alpha[2])) +
       // 连杆4的重力分量
-      m_link * (l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + lc * cosf(alpha[3]))
+      m_link * (l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + lc * cosf(alpha[3])) +
+      // 负载的重力分量（连杆4后面）
+      m_payload * (l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + (l_count + lc_payload) * cosf(alpha[3]))
     ) * (-1.0f); // 注意方向为负
-    
-    // 关节3：承载连杆3、电机4、连杆4的重力分量
+        
+    // 关节3：承载连杆3、电机4、连杆4、负载的重力分量
     t_output[2] = g_count * (
       // 连杆3的重力分量
       m_link * lc * cosf(alpha[2]) +
       // 电机4的重力分量
       m_motor * l_count * cosf(alpha[2]) +
       // 连杆4的重力分量
-      m_link * (l_count * cosf(alpha[2]) + lc * cosf(alpha[3]))
+      m_link * (l_count * cosf(alpha[2]) + lc * cosf(alpha[3])) +
+      // 负载的重力分量（连杆4后面）
+      m_payload * (l_count * cosf(alpha[2]) + (l_count + lc_payload) * cosf(alpha[3]))
     );
-    
-    // 关节4：仅承载连杆4的重力分量
-    t_output[3] = g_count * m_link * lc * cosf(alpha[3])*(-1.0f);
-    
-    //------------------- 5. 发送力矩指令到各关节电机 -------------------
-    
+        
+    // 关节4：承载连杆4和负载的重力分量
+    t_output[3] = g_count * (
+      // 连杆4的重力分量
+      m_link * lc * cosf(alpha[3]) +
+      // 负载的重力分量（连杆4后面）
+      m_payload * (l_count + lc_payload) * cosf(alpha[3])
+    ) * (-1.0f);
+        
+    //------------------- 4. 发送力矩指令到各关节电机 -------------------
+        
     // 依次给4个关节电机发送力矩控制指令
     mit_ctrl(&hfdcan1,0,0,0,0,0,t_output[0]);
     mit_ctrl(&hfdcan1,1,0,0,0,0,t_output[1]);
     mit_ctrl(&hfdcan1,2,0,0,0,0,t_output[2]);
     mit_ctrl(&hfdcan1,3,0,0,0,0,t_output[3]);
-    // HAL_Delay(1);    
+    // HAL_Delay(1);
 }
+#else
+void Gravity_Compensation(void) 
+{
+    //------------------- 1. 修正角度 -------------------
+    // 将原始角度 xita 修正为机械臂实际关节角度 xita_jxb
+    xita_jxb[0] = motor_pos[0] + 3.14f/2;   // 关节1角度加90度
+    xita_jxb[1] = - motor_pos[1];           // 关节2角度取反
+    xita_jxb[2] = motor_pos[2];             // 关节3角度不变
+    xita_jxb[3] = -motor_pos[3];            // 关节4角度不变
+        
+    //------------------- 2. 计算各关节的绝对角度 alpha -------------------
+    // alpha[i] 表示第i个关节的绝对角度（从基座到该关节的总旋转角度）
+    alpha[0] = xita_jxb[0];
+    alpha[1] = xita_jxb[0] + xita_jxb[1];
+    alpha[2] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2];
+    alpha[3] = xita_jxb[0] + xita_jxb[1] + xita_jxb[2] + xita_jxb[3];
+        
+    //------------------- 3. 计算各关节所需力矩 -------------------
+        
+    // 关节1：承载整个系统的重力分量（连杆1+电机2+连杆2+电机3+连杆3+电机4+负载）
+    t_output[0] = g_count * (
+      // 连杆1的重力分量
+      m_link * lc * cosf(alpha[0]) + 
+      // 电机2的重力分量
+      m_motor * l_count * cosf(alpha[0]) + 
+      // 连杆2的重力分量
+      m_link * (l_count * cosf(alpha[0]) + lc * cosf(alpha[1])) +
+      // 电机3的重力分量
+      m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1])) +
+      // 连杆3的重力分量
+      m_link * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + lc * cosf(alpha[2])) +
+      // 电机4的重力分量
+      m_motor * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + l_count * cosf(alpha[2])) +
+      // 负载的重力分量（修改：使用m_payload和lc_payload）
+      m_payload * (l_count * cosf(alpha[0]) + l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + lc_payload * cosf(alpha[3]))
+    );
+        
+    // 关节2：承载连杆2、电机3、连杆3、电机4、负载的重力分量
+    t_output[1] = g_count * (
+      // 连杆2的重力分量
+      m_link * lc * cosf(alpha[1]) +
+      // 电机3的重力分量
+      m_motor * l_count * cosf(alpha[1]) +
+      // 连杆3的重力分量
+      m_link * (l_count * cosf(alpha[1]) + lc * cosf(alpha[2])) +
+      // 电机4的重力分量
+      m_motor * (l_count * cosf(alpha[1]) + l_count * cosf(alpha[2])) +
+      // 负载的重力分量（修改：使用m_payload和lc_payload）
+      m_payload * (l_count * cosf(alpha[1]) + l_count * cosf(alpha[2]) + lc_payload * cosf(alpha[3]))
+    ) * (-1.0f); // 注意方向为负
+        
+    // 关节3：承载连杆3、电机4、负载的重力分量
+    t_output[2] = g_count * (
+      // 连杆3的重力分量
+      m_link * lc * cosf(alpha[2]) +
+      // 电机4的重力分量
+      m_motor * l_count * cosf(alpha[2]) +
+      // 负载的重力分量（修改：使用m_payload和lc_payload）
+      m_payload * (l_count * cosf(alpha[2]) + lc_payload * cosf(alpha[3]))
+    );
+        
+    // 关节4：仅承载负载的重力分量（修改：使用m_payload和lc_payload）
+    t_output[3] = g_count * m_payload * lc_payload * cosf(alpha[3]) * (-1.0f);
+        
+    //------------------- 4. 发送力矩指令到各关节电机 -------------------
+        
+    // 依次给4个关节电机发送力矩控制指令
+    mit_ctrl(&hfdcan1,0,0,0,0,0,t_output[0]);
+    mit_ctrl(&hfdcan1,1,0,0,0,0,t_output[1]);
+    mit_ctrl(&hfdcan1,2,0,0,0,0,t_output[2]);
+    mit_ctrl(&hfdcan1,3,0,0,0,0,t_output[3]);
+    // HAL_Delay(1);
+}
+#endif
