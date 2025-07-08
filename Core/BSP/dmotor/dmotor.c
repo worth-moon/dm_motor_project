@@ -14,20 +14,6 @@
 // #define MOTOR_VMAX 30.0f
 // #define MOTOR_TMAX 10.0f
 
-// 电机配置
-#define MAX_MOTOR_COUNT 10
-#define MOTOR_ID_COUNT 6
-
-#define BROADCAST_CAN_ID 0x7FF
-#define MODE_CHANGE_DELAY_MS 100
-
-// 电机工作模式定义
-typedef enum {
-    MOTOR_MODE_MIT = 0x01,           // MIT模式
-    MOTOR_MODE_POSITION_SPEED = 0x02, // 位置速度模式
-    MOTOR_MODE_SPEED = 0x03          // 速度模式
-} motor_work_mode_t;
-
 
 // 电机CAN ID映射表 - 基础ID，控制模式会在此基础上加偏移
 const uint16_t MOTOR_CAN_ID_MAP[MOTOR_ID_COUNT] = {0x00, 0x02, 0x04, 0x06, 0x05, 0x06};
