@@ -52,7 +52,12 @@
 "end\delay.o"
 "end\dmotor.o"
 "end\mc.o"
---strict --scatter "end\end.sct"
+"end\rc.o"
+"end\vofa.o"
+"end\pid.o"
+"end\openmv.o"
+"end\debug_printf.o"
+--library_type=microlib --strict --scatter "end\end.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "end.map" -o end\end.axf

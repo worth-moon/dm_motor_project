@@ -191,7 +191,7 @@
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,ARM_MATH_LOOPUNROLL</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;..\Drivers\CMSIS\DSP\Include;..\Core\BSP\can;..\Core\BSP\delay;..\Core\BSP\dmotor;..\Core\BSP\mc</IncludePath>
+              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;..\Drivers\CMSIS\DSP\Include;..\Core\BSP\can;..\Core\BSP\delay;..\Core\BSP\dmotor;..\Core\BSP\mc;..\Core\BSP\fast_sin;..\Core\BSP\openmv;..\Core\BSP\pid;..\Core\BSP\rc;..\Core\BSP\vofa;..\Core\BSP\debug_printf</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1283,6 +1283,91 @@
               <FileName>mc.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Core\BSP\mc\mc.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/ARM_RC</GroupName>
+          <Files>
+            <File>
+              <FileName>rc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\rc\rc.c</FilePath>
+            </File>
+            <File>
+              <FileName>rc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\rc\rc.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/VOFA</GroupName>
+          <Files>
+            <File>
+              <FileName>vofa.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\vofa\vofa.c</FilePath>
+            </File>
+            <File>
+              <FileName>vofa.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\vofa\vofa.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/PID</GroupName>
+          <Files>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\pid\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\pid\pid.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/OPENMV</GroupName>
+          <Files>
+            <File>
+              <FileName>openmv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\openmv\openmv.c</FilePath>
+            </File>
+            <File>
+              <FileName>openmv.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\openmv\openmv.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/FAST_SIN</GroupName>
+          <Files>
+            <File>
+              <FileName>fast_sin.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\fast_sin\fast_sin.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/DEBUG_PRINTF</GroupName>
+          <Files>
+            <File>
+              <FileName>debug_printf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\debug_printf\debug_printf.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug_printf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\debug_printf\debug_printf.h</FilePath>
             </File>
           </Files>
         </Group>

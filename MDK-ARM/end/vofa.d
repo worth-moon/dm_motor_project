@@ -1,5 +1,5 @@
-end/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
-  ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
+end/vofa.o: ..\Core\BSP\vofa\vofa.c ..\Core\BSP\vofa\vofa.h \
+  ..\Core\Inc\main.h ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h \
@@ -36,12 +36,10 @@ end/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_ll_usb.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_pcd_ex.h \
-  ..\Core\Inc\adc.h ..\Core\Inc\dma.h ..\Core\Inc\fdcan.h \
-  ..\Core\Inc\memorymap.h ..\Core\Inc\spi.h ..\Core\Inc\tim.h \
-  ..\Core\Inc\usart.h ..\USB_DEVICE\App\usb_device.h \
+  ..\Core\Inc\usart.h ..\USB_DEVICE\App\usbd_cdc_if.h \
+  ..\Middlewares\ST\STM32_USB_Device_Library\Class\CDC\Inc\usbd_cdc.h \
+  ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_ioreq.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
-  ..\USB_DEVICE\Target\usbd_conf.h ..\Core\Inc\gpio.h \
-  ..\Core\BSP\can\can_bsp.h ..\Core\BSP\delay\delay.h ..\Core\Inc\lcd.h \
-  ..\Core\Inc\pic.h ..\Drivers\CMSIS\DSP\Include\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Core\BSP\dmotor\dmotor.h \
-  ..\Core\BSP\mc\mc.h ..\Core\BSP\rc\rc.h
+  ..\USB_DEVICE\Target\usbd_conf.h \
+  ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_core.h \
+  ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_ctlreq.h
