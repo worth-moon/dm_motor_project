@@ -134,6 +134,7 @@ int main(void)
 	HAL_Delay(1000);
 	
   mc_init(); //电机系统初始化，开启所有电机
+  motor_change_work_mode(&hfdcan1,3,MOTOR_MODE_POSITION_SPEED);
   /* USER CODE END 2 */
 
   /* Infinite loop */
