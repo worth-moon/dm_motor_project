@@ -138,14 +138,14 @@ int main(void)
 	
   //mc_init(); //电机系统初始化，开启所有电机
   //motor_change_work_mode(&hfdcan1,3,MOTOR_MODE_POSITION_SPEED);
-  HAL_UART_Receive_IT(&huart7, shijiao_rx_data, 1);
+  HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  CDC_Transmit_HS(&shijiao_display_data,1);
+	  CDC_Transmit_HS((uint8_t *)&shijiao_display_data,1);
 	  //HAL_UART_Transmit(&huart7,&shijiao_display_data,1,1000);
 	  delay_ms(500);
 //	  extern volatile float t_output[6];
@@ -223,40 +223,41 @@ void SystemClock_Config(void)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
-//	if(huart->Instance == UART7)
-//	{
-		switch(shijiao_rx_data[0])
-		{
-			case 0x00:
-				shijiao_display_data = 0x00;
-				break;
-			case 0x01:
-				shijiao_display_data = 0x01;
-				break;
-			case 0x02:
-				shijiao_display_data = 0x02;
-				break;
-			case 0x03:
-				shijiao_display_data = 0x03;
-				break;
-			case 0x04:
-				shijiao_display_data = 0x04;
-				break;
-			case 0x05:
-				shijiao_display_data = 0x05;
-				break;
-			case 0x06:
-				shijiao_display_data = 0x06;
-				break;
-			case 0x07:
-				shijiao_display_data = 0x07;
-				break;
-			default:
-				// 未知指令处理
-				break;
-		}
-    HAL_UART_Receive_IT(&huart7, shijiao_rx_data, 1);
-	//}
+	if(huart->Instance == UART7)
+	{
+		shijiao_display_data = shijiao_rx_data[0];
+//		switch(shijiao_rx_data[0])
+//		{
+//			case 0x00:
+//				shijiao_display_data = 0x00;
+//				break;
+//			case 0x01:
+//				shijiao_display_data = 0x01;
+//				break;
+//			case 0x02:
+//				shijiao_display_data = 0x02;
+//				break;
+//			case 0x03:
+//				shijiao_display_data = 0x03;
+//				break;
+//			case 0x04:
+//				shijiao_display_data = 0x04;
+//				break;
+//			case 0x05:
+//				shijiao_display_data = 0x05;
+//				break;
+//			case 0x06:
+//				shijiao_display_data = 0x06;
+//				break;
+//			case 0x07:
+//				shijiao_display_data = 0x07;
+//				break;
+//			default:
+//				// 未知指令处理
+//				break;
+//		}
+    HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
+	}
 }
 /* USER CODE END 4 */
 
