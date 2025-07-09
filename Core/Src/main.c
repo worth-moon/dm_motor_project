@@ -136,7 +136,7 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN 可控开关2
 	HAL_Delay(1000);
 	
-  //mc_init(); //电机系统初始化，开启所有电机
+  mc_init(); //电机系统初始化，开启所有电机
   //motor_change_work_mode(&hfdcan1,3,MOTOR_MODE_POSITION_SPEED);
   HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
   /* USER CODE END 2 */
@@ -220,45 +220,91 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+// ...existing code...
+
+// 全局变量定义
+uint8_t work_flag = 0; // 0: 录制模式，1: 执行模式
+float shijiao_jxb_buffer[8][5] = {0}; // 8组，每组5个电机
+extern float motor_pos[]; // motor_pos在can_bsp.c中定义
+extern hcan_t hfdcan1;    // CAN句柄
+
+void shijiao_logic_handle(void)
+{
+    switch(shijiao_display_data)
+    {
+        case 0x00:
+        case 0x01:
+        case 0x02:
+        case 0x03:
+        case 0x04:
+        case 0x05:
+        case 0x06:
+            if(work_flag == 0)
+            {
+                // 录制模式：保存当前位置
+                for(int i = 0; i < 5; i++)
+                {
+                    shijiao_jxb_buffer[shijiao_display_data][i] = motor_pos[i];
+                }
+            }
+            else
+            {
+                // 执行模式：运动到目标位置
+                for(int i = 0; i < 5; i++)
+                {
+                    pos_speed_ctrl(&hfdcan1, i, shijiao_jxb_buffer[shijiao_display_data][i], 1.0f);
+                }
+            }
+            break;
+        case 0x07:
+            // 切换模式
+            if(work_flag == 0)
+            {
+                // 切换到执行模式
+                for(int i = 0; i < 5; i++)
+                {
+                    motor_change_work_mode(&hfdcan1, i, MOTOR_MODE_POSITION_SPEED);
+                }
+                work_flag = 1;
+            }
+            else
+            {
+                // 切换到录制模式
+                for(int i = 0; i < 5; i++)
+                {
+                    motor_change_work_mode(&hfdcan1, i, MOTOR_MODE_MIT);
+                }
+				motor_change_work_mode(&hfdcan1, 3, MOTOR_MODE_POSITION_SPEED);
+                work_flag = 0;
+            }
+            break;
+        default:
+            // 其他情况
+            break;
+    }
+}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
 	if(huart->Instance == UART7)
 	{
-		shijiao_display_data = shijiao_rx_data[0];
-//		switch(shijiao_rx_data[0])
-//		{
-//			case 0x00:
-//				shijiao_display_data = 0x00;
-//				break;
-//			case 0x01:
-//				shijiao_display_data = 0x01;
-//				break;
-//			case 0x02:
-//				shijiao_display_data = 0x02;
-//				break;
-//			case 0x03:
-//				shijiao_display_data = 0x03;
-//				break;
-//			case 0x04:
-//				shijiao_display_data = 0x04;
-//				break;
-//			case 0x05:
-//				shijiao_display_data = 0x05;
-//				break;
-//			case 0x06:
-//				shijiao_display_data = 0x06;
-//				break;
-//			case 0x07:
-//				shijiao_display_data = 0x07;
-//				break;
-//			default:
-//				// 未知指令处理
-//				break;
-//		}
-    HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
+
 	}
 }
+
+void UART7_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART7_IRQn 0 */
+
+  /* USER CODE END UART7_IRQn 0 */
+  HAL_UART_IRQHandler(&huart7);
+  /* USER CODE BEGIN UART7_IRQn 1 */
+	shijiao_display_data = shijiao_rx_data[0];
+	shijiao_logic_handle();
+	HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
+  /* USER CODE END UART7_IRQn 1 */
+}
+// ...existing code...
 /* USER CODE END 4 */
 
  /* MPU Configuration */
