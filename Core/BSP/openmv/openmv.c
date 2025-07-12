@@ -77,29 +77,3 @@ uint8_t openmv_data_process_float(uint8_t* rx_data, uint8_t len, uint8_t target_
 
     return 1;
 }
-
-
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
-//{
-//    const static uint8_t uart_rx_len = 50;
-//    const static uint8_t target_flag = 'B';
-//    const static uint8_t target_len = 5;
-
-//    uart_count++;
-//    if (uart_count > uart_rx_len)
-//    {
-//        //test_flag = openmv_data_process_flag(rx_buffer, strlen((const char*)rx_buffer), target_flag);
-//        test_flag = openmv_data_process_float(rx_buffer, strlen((const char*)rx_buffer), target_len, (float *)tar_buffer);
-//		X_IN = tar_buffer[0];
-//		Y_IN = tar_buffer[1];
-//        uart_count = 0;
-//        memset(rx_buffer, 0, strlen((const char*)rx_buffer));
-//    }
-//    HAL_UART_Receive_IT(&huart7, rx_buffer + uart_count, 1);
-//    //标志位置一后，需要执行的任务
-//    if (test_flag == 1)
-//    {
-
-//        test_flag = 0;//单次执行需要该语句
-//    }
-//}

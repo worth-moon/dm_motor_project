@@ -47,6 +47,7 @@
 #include "mc.h"
 #include "rc.h"
 #include "vofa.h"
+#include "openmv.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,10 +82,10 @@ volatile uint8_t task_cmd;
 float first_point_one[2];
 	// ...existing code...
 #define SECOND_POINT_NUM 8
-#define POS_ERR_TH 0.002f // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define POS_ERR_TH 0.002f // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
 float second_points[SECOND_POINT_NUM][2];
 uint8_t second_point_index = 0;
-uint8_t second_point_count = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ñ±ï¿½Çµï¿½ï¿½ï¿½
+uint8_t second_point_count = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ñ±ï¿½Çµï¿½ï¿½ï¿?
 uint8_t enable_flag;
 // ...existing code...
 /* USER CODE END PV */
@@ -143,7 +144,7 @@ int main(void)
   MX_UART7_Init();
   MX_USART10_UART_Init();
   /* USER CODE BEGIN 2 */
-	delay_init(480);//ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½á¿¨ï¿½ï¿½
+	delay_init(480);//ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½á¿¨ï¿½ï¿?
 	can_bsp_init();//canï¿½Ë²ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);//XT30+CAN ï¿½É¿Ø¿ï¿½ï¿½ï¿½1
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN ï¿½É¿Ø¿ï¿½ï¿½ï¿½2
@@ -154,6 +155,8 @@ int main(void)
 
   //rx_cmd = 0;
   HAL_UART_Receive_IT(&huart7, rx_cmd, 1);
+  HAL_UART_Receive_IT(&huart10, rx_buffer, 1);
+  HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -164,7 +167,7 @@ int main(void)
     {
         switch (task_cmd)
         {
-            case 0xf1: // ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
+            case 0xf1: // ï¿½ï¿½ï¿½Ê§ï¿½ï¿?
             {
                 enable_flag = 0;
                 motor_disable(&hfdcan1, 0);
@@ -172,7 +175,7 @@ int main(void)
                 break;
             }
     
-            case 0x11: // ï¿½ï¿½Ò»ï¿½Ê±ï¿½ï¿½
+            case 0x11: // ï¿½ï¿½Ò»ï¿½Ê±ï¿½ï¿?
             {
                 first_point_one[0] = motor_pos[0];
                 first_point_one[1] = motor_pos[1];
@@ -191,14 +194,14 @@ int main(void)
                 break;
             }
     
-            case 0x21: // ï¿½Ú¶ï¿½ï¿½Ê±ï¿½ï¿½
+            case 0x21: // ï¿½Ú¶ï¿½ï¿½Ê±ï¿½ï¿?
             {
-                // ï¿½ï¿½Çµï¿½Ç°ï¿½ãµ½ï¿½ï¿½ï¿½ï¿½
+                // ï¿½ï¿½Çµï¿½Ç°ï¿½ãµ½ï¿½ï¿½ï¿½ï¿?
                 second_points[second_point_index][0] = motor_pos[0];
                 second_points[second_point_index][1] = motor_pos[1];
                 second_point_index++;
                 if (second_point_index >= SECOND_POINT_NUM)
-                    second_point_index = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½Ê¼
+                    second_point_index = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½Ê?
                 if (second_point_count < SECOND_POINT_NUM)
                     second_point_count++; // Ö»ï¿½ï¿½Î´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
                 break;
@@ -210,20 +213,20 @@ int main(void)
                 motor_enable(&hfdcan1, 0);
                 motor_enable(&hfdcan1, 1);
     
-                // Ö»Ö´ï¿½ï¿½ï¿½Ñ±ï¿½ÇµÄµï¿½
+                // Ö»Ö´ï¿½ï¿½ï¿½Ñ±ï¿½ÇµÄµï¿?
                 for (uint8_t i = 0; i < second_point_count; i++)
                 {
                     pos_speed_ctrl(&hfdcan1, 0, second_points[i][0], 3);
                     pos_speed_ctrl(&hfdcan1, 1, second_points[i][1], 3);
     
-                    // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½
+                    // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿?
                     while (1)
                     {
                         float err0 = fabs(motor_pos[0] - second_points[i][0]);
                         float err1 = fabs(motor_pos[1] - second_points[i][1]);
                         if (err0 < POS_ERR_TH && err1 < POS_ERR_TH)
                             break;
-                        delay_ms(10); // Ã¿ï¿½ï¿½10msï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+                        delay_ms(10); // Ã¿ï¿½ï¿½10msï¿½ï¿½ï¿½Ò»ï¿½ï¿?
                     }
                 }
                 break;
@@ -328,6 +331,33 @@ void USART10_IRQHandler(void)
   /* USER CODE BEGIN USART10_IRQn 1 */
   
   /* USER CODE END USART10_IRQn 1 */
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+{
+  if(huart == &huart10)
+  {
+    const static uint8_t uart_rx_len = 50;
+    const static uint8_t target_flag = 'B';
+    const static uint8_t target_len = 2;
+
+    uart_count++;
+    if (uart_count > uart_rx_len)
+    {
+        //test_flag = openmv_data_process_flag(rx_buffer, strlen((const char*)rx_buffer), target_flag);
+        test_flag = openmv_data_process_float(rx_buffer, uart_rx_len, target_len, (float *)tar_buffer);
+        X_IN = tar_buffer[0];
+        Y_IN = tar_buffer[1];
+        uart_count = 0;
+        memset(rx_buffer, 0, strlen((const char*)rx_buffer));
+    }
+    HAL_UART_Receive_IT(&huart10, rx_buffer + uart_count, 1);
+    //±êÖ¾Î»ÖÃÒ»ºó£¬ÐèÒªÖ´ÐÐµÄÈÎÎñ
+    if (test_flag == 1)
+    {
+        test_flag = 0;//µ¥´ÎÖ´ÐÐÐèÒª¸ÃÓï¾ä
+    }
+  }
 }
 /* USER CODE END 4 */
 
