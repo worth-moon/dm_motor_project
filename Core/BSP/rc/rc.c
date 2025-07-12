@@ -136,7 +136,7 @@ solution_found:
     count = 0;
 }
 
-#define ADD_LINK_DOWN
+#define ADD_LINK
 #ifdef ADD_LINK
 
 volatile float t_output[6],xita_jxb[6]; 
@@ -146,24 +146,24 @@ float debug_fuhao = 1,debug_fuhao2 = -1;
 extern float motor_pos[MAX_MOTOR_COUNT]; 
 
 // 机械参数
-float m_link = 0.149f;          // 连杆质量
+float m_link = 0.150f;          // 连杆质量
 float g_count = 10.0f;          // 重力加速度
 float lc = 0.06f;               // 连杆质心到关节距离
 float l_count = 0.12f;          // 连杆长度
-float m_motor = 0.395f;         // 电机质量
+float m_motor = 0.500f;         // 电机质量
 
 // 负载参数（新增）
-float m_payload = 0.100f;       // 负载质量
-float lc_payload = 0.12f;       // 负载重心到连杆4末端的距离
+float m_payload = 0.000f;       // 负载质量
+float lc_payload = 0.00f;       // 负载重心到连杆4末端的距离
 
 void Gravity_Compensation(void) 
 {
     //------------------- 1. 修正角度 -------------------
     // 将原始角度 xita 修正为机械臂实际关节角度 xita_jxb
-    xita_jxb[0] = motor_pos[0] + 3.14f/2;   // 关节1角度加90度
-    xita_jxb[1] = - motor_pos[1];           // 关节2角度取反
-    xita_jxb[2] = motor_pos[2];             // 关节3角度不变
-    xita_jxb[3] = -motor_pos[3];            // 关节4角度不变
+    xita_jxb[0] = motor_pos[1] + 3.14f/2;   // 关节1角度加90度
+    xita_jxb[1] = - motor_pos[2];           // 关节2角度取反
+    xita_jxb[2] = motor_pos[3];             // 关节3角度不变
+    xita_jxb[3] = -motor_pos[4];            // 关节4角度不变
         
     //------------------- 2. 计算各关节的绝对角度 alpha -------------------
     // alpha[i] 表示第i个关节的绝对角度（从基座到该关节的总旋转角度）
@@ -233,10 +233,10 @@ void Gravity_Compensation(void)
     //------------------- 4. 发送力矩指令到各关节电机 -------------------
         
     // 依次给4个关节电机发送力矩控制指令
-    mit_ctrl(&hfdcan1,0,0,0,0,0,t_output[0]);
-    mit_ctrl(&hfdcan1,1,0,0,0,0,t_output[1]);
-    mit_ctrl(&hfdcan1,2,0,0,0,0,t_output[2]);
-    mit_ctrl(&hfdcan1,3,0,0,0,0,t_output[3]);
+    //mit_ctrl(&hfdcan1,1,0,0,0,0,t_output[0]);
+    //mit_ctrl(&hfdcan1,2,0,0,0,0,t_output[1]);
+    mit_ctrl(&hfdcan1,3,0,0,0,0,t_output[2]);
+    mit_ctrl(&hfdcan1,4,0,0,0,0,t_output[3]);
     // HAL_Delay(1);
 }
 #elif defined NOLINK

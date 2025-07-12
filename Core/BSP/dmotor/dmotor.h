@@ -14,7 +14,7 @@ typedef enum {
 
 // µÁª˙≈‰÷√
 #define MAX_MOTOR_COUNT 10
-#define MOTOR_ID_COUNT 6
+#define MOTOR_ID_COUNT 5
 
 #define BROADCAST_CAN_ID 0x7FF
 #define MODE_CHANGE_DELAY_MS 100
