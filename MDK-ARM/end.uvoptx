@@ -162,9 +162,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>348</LineNumber>
+          <LineNumber>123</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134253132</Address>
+          <Address>134304152</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -173,7 +173,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>E:\desktop\鐢佃禌\jxb\Core\Src\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\end\../Core/Src/main.c\348</Expression>
+          <Expression>\\end\../Core/Src/main.c\123</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -433,6 +433,26 @@
           <count>10</count>
           <WinNumber>2</WinNumber>
           <ItemText>rx_buffer</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>four_add_pos</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>four_cur_pos</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>four_tar_pos</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>motor_pos</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
@@ -1341,7 +1361,7 @@
 
   <Group>
     <GroupName>BSP/PID</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

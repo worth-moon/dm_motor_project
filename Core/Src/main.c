@@ -48,6 +48,7 @@
 #include "rc.h"
 #include "vofa.h"
 #include "openmv.h"
+#include "pid.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,7 +87,11 @@ float first_point_one[2];
 float second_points[SECOND_POINT_NUM][2];
 uint8_t second_point_index = 0;
 uint8_t second_point_count = 0; // 锟斤拷锟斤拷锟斤拷锟斤拷录锟窖憋拷堑锟斤拷锟?
-uint8_t enable_flag;
+uint8_t enable_flag=1;
+
+volatile float four_cur_pos[2],four_tar_pos[2],four_add_pos[2];
+
+Pid_Controller_t pid_x,pid_y;
 // ...existing code...
 /* USER CODE END PV */
 
@@ -154,9 +159,12 @@ int main(void)
 
 
   //rx_cmd = 0;
+  Pid_Init(&pid_x,0.01,0,0,0,0.033f,3.14f);
+  Pid_Init(&pid_y,0,0,0,0,0.033f,3.14f);
   HAL_UART_Receive_IT(&huart7, rx_cmd, 1);
   HAL_UART_Receive_IT(&huart10, rx_buffer, 1);
-  HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
+
+  //HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -230,6 +238,12 @@ int main(void)
                     }
                 }
                 break;
+            }
+
+            case 0x41:
+            {
+              
+              break;
             }
     
             // ...existing code...
@@ -329,15 +343,7 @@ void USART10_IRQHandler(void)
   /* USER CODE END USART10_IRQn 0 */
   HAL_UART_IRQHandler(&huart10);
   /* USER CODE BEGIN USART10_IRQn 1 */
-  
-  /* USER CODE END USART10_IRQn 1 */
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
-{
-  if(huart == &huart10)
-  {
-    const static uint8_t uart_rx_len = 50;
+      const static uint8_t uart_rx_len = 50;
     const static uint8_t target_flag = 'B';
     const static uint8_t target_len = 2;
 
@@ -355,8 +361,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
     //标志位置一后，需要执行的任务
     if (test_flag == 1)
     {
+        four_add_pos[0] = Pid_Cal(&pid_x,X_IN);
+        four_add_pos[1] = Pid_Cal(&pid_y,Y_IN);
+
+        four_cur_pos[0] = motor_pos[0];
+        four_cur_pos[1] = motor_pos[1];
+
+        four_tar_pos[0] = -four_add_pos[0] + four_cur_pos[0];
+        four_tar_pos[1] = four_add_pos[1] + four_cur_pos[1];
+
+        pos_speed_ctrl(&hfdcan1, 0, four_tar_pos[0], 0.3);
+        //pos_speed_ctrl(&hfdcan1, 1, four_tar_pos[1], 3);
+
         test_flag = 0;//单次执行需要该语句
     }
+  /* USER CODE END USART10_IRQn 1 */
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
+{
+  if(huart == &huart10)
+  {
+
   }
 }
 /* USER CODE END 4 */

@@ -18,5 +18,6 @@ typedef struct
 
 void Pid_Init(Pid_Controller_t *pid, float kp, float ki, float kd, float kis, float deltaT, float range);
 
-float Pid_Cal(Pid_Controller_t *pid, float target, float curr);
+//float Pid_Cal(Pid_Controller_t *pid, float target, float curr);
+float Pid_Cal(Pid_Controller_t *pid, float error);
 #endif 

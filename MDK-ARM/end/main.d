@@ -45,4 +45,4 @@ end/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\pic.h ..\Drivers\CMSIS\DSP\Include\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Core\BSP\dmotor\dmotor.h \
   ..\Core\BSP\mc\mc.h ..\Core\BSP\rc\rc.h ..\Core\BSP\vofa\vofa.h \
-  ..\Core\BSP\openmv\openmv.h
+  ..\Core\BSP\openmv\openmv.h ..\Core\BSP\pid\pid.h

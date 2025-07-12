@@ -13,9 +13,42 @@ void Pid_Init(Pid_Controller_t *pid, float kp, float ki, float kd, float kis, fl
   pid->i = 0.0f;
 }
 
-float Pid_Cal(Pid_Controller_t *pid, float target, float curr)
+//float Pid_Cal(Pid_Controller_t *pid, float target, float curr)
+//{
+//  float err = target - curr;
+//  float derr = (err - pid->prev) / pid->deltaT;
+
+//  pid->prev = err;
+//  pid->i += err * pid->deltaT;
+
+////	float s_f = 0.0075f;
+////  if (pid->i > 0.0592f)
+////  {
+////      pid->i = 0;
+////  }
+////	else if (pid->i < -0.0592f)
+////	{
+////			pid->i = 0;
+////	}
+
+//  float output = pid->kp * err + pid->ki * pid->i + pid->kd * derr;
+
+//  if (output > pid->range)
+//  {
+//    pid->i += pid->kis * (pid->range - output) * pid->deltaT;
+//    return pid->range;
+//  }
+//  else if (output < -pid->range)
+//  {
+//    pid->i -= pid->kis * (pid->range + output) * pid->deltaT;
+//    return -pid->range;
+//  }
+//  return output;
+//}
+
+float Pid_Cal(Pid_Controller_t *pid, float error)
 {
-  float err = target - curr;
+  float err = error;
   float derr = (err - pid->prev) / pid->deltaT;
 
   pid->prev = err;
