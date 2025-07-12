@@ -49,6 +49,12 @@
 #include "vofa.h"
 #include "openmv.h"
 #include "pid.h"
+
+#include <stdio.h>
+#include <string.h>         // 包含memset函数头文件
+#include <ctype.h>          // 包含isalpha函数头文件
+#include <stdlib.h>         // 包含strtof函数头文件
+#include <stdio.h>          // 包含printf函数头文件
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,6 +98,26 @@ uint8_t enable_flag=1;
 volatile float four_cur_pos[2],four_tar_pos[2],four_add_pos[2];
 
 Pid_Controller_t pid_x,pid_y;
+
+
+typedef enum {
+    FIND_HEADER,
+    RECEIVE_DATA,
+    DATA_READY
+} Receive_State;
+#define rx_buffer_num 50
+#define rx_task_buffer_num 50
+Receive_State UartRxState = FIND_HEADER;
+
+float values[6];
+
+uint8_t rx_index = 0;
+uint8_t rx_buffer[rx_buffer_num];
+uint8_t parse_buffer[rx_buffer_num];
+
+uint8_t rx_task_index = 0;
+uint8_t rx_task_buffer[rx_task_buffer_num] = {0};
+
 // ...existing code...
 /* USER CODE END PV */
 
@@ -101,6 +127,7 @@ static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 extern uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len);
 void robot_arm(float X, float Y);
+void Uart_Data_Process(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -159,10 +186,10 @@ int main(void)
 
 
   //rx_cmd = 0;
-  Pid_Init(&pid_x,0.01,0,0,0,0.033f,3.14f);
-  Pid_Init(&pid_y,0,0,0,0,0.033f,3.14f);
+  Pid_Init(&pid_x,0.00075,0,0.000,0,0.033f,3.14f);
+  Pid_Init(&pid_y,0.00075,0,0.000,0,0.033f,3.14f);
   HAL_UART_Receive_IT(&huart7, rx_cmd, 1);
-  HAL_UART_Receive_IT(&huart10, rx_buffer, 1);
+  HAL_UART_Receive_IT(&huart10, rx_buffer + rx_index, 1);
 
   //HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
   /* USER CODE END 2 */
@@ -255,6 +282,8 @@ int main(void)
         }
         task_cmd = 0;
     }
+    Uart_Data_Process();
+
     // ...existing code...
     // ...existing code...
     /* USER CODE END WHILE */
@@ -324,6 +353,86 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void Uart_Data_Process(void)
+{
+    // 数据解析
+    if (UartRxState == DATA_READY)
+    {
+        uint8_t parse_len = rx_index + 1;
+        memcpy(parse_buffer, rx_buffer, parse_len);
+
+        char* ptr = (char*)parse_buffer;
+        char* end;
+        int i = 0;
+
+        // 跳过开头的 '#'
+        char* temp_ptr = strchr(ptr, '#');
+        if (temp_ptr != NULL)
+        {
+            ptr = temp_ptr + 1;
+        }
+        else
+        {
+            // 未找到 '#' 情况下的处理
+            rx_index = 0;
+            memset(rx_buffer, 0, sizeof(rx_buffer));
+            memset(parse_buffer, 0, sizeof(parse_buffer));
+            HAL_UART_Receive_IT(&huart7, rx_buffer + rx_index, 1);  // 确保再次启用接收中断
+
+        }
+
+        if (parse_buffer[parse_len - 1] != ';')
+        {
+            return;
+        }
+
+        // 解析浮点数
+        while (*ptr && i < 2)
+        {
+            while (isalpha(*ptr)) ptr++;  // 跳过字母
+
+            values[i] = strtof(ptr, &end);
+            if (ptr == end) break;
+
+            ptr = end;
+            i++;
+
+            // 跳过逗号
+            while (*ptr == ',') ptr++;
+        }
+
+        // 处理解析后的数据
+        // for (int j = 0; j < i; j++)
+        // {
+        //     //printf("Value %c: %f\n", 'A' + j, values[j]);
+        // }
+
+        // 重置状态
+        rx_index = 0;
+        memset(rx_buffer, 0, sizeof(rx_buffer));
+
+        UartRxState = FIND_HEADER;
+		HAL_UART_Receive_IT(&huart7, rx_buffer, 1);
+
+
+        four_add_pos[0] = Pid_Cal(&pid_x,values[0]);
+        four_add_pos[1] = Pid_Cal(&pid_y,values[1]);
+
+        four_cur_pos[0] = motor_pos[0];
+        four_cur_pos[1] = motor_pos[1];
+
+        four_tar_pos[0] = -four_add_pos[0] + four_cur_pos[0];
+        four_tar_pos[1] = -four_add_pos[1] + four_cur_pos[1];
+
+        pos_speed_ctrl(&hfdcan1, 0, four_tar_pos[0], 3);
+        pos_speed_ctrl(&hfdcan1, 1, four_tar_pos[1], 3);
+
+    }
+
+  
+
+}
+
 
 void UART7_IRQHandler(void)
 {
@@ -336,6 +445,7 @@ void UART7_IRQHandler(void)
   /* USER CODE END UART7_IRQn 1 */
 }
 
+
 void USART10_IRQHandler(void)
 {
   /* USER CODE BEGIN USART10_IRQn 0 */
@@ -343,38 +453,37 @@ void USART10_IRQHandler(void)
   /* USER CODE END USART10_IRQn 0 */
   HAL_UART_IRQHandler(&huart10);
   /* USER CODE BEGIN USART10_IRQn 1 */
-      const static uint8_t uart_rx_len = 50;
-    const static uint8_t target_flag = 'B';
-    const static uint8_t target_len = 2;
+    switch (UartRxState)
+  {
+      case FIND_HEADER:
+          if (rx_buffer[rx_index] == '#')
+          {
+              UartRxState = RECEIVE_DATA;
+              rx_index += 1;
 
-    uart_count++;
-    if (uart_count > uart_rx_len)
-    {
-        //test_flag = openmv_data_process_flag(rx_buffer, strlen((const char*)rx_buffer), target_flag);
-        test_flag = openmv_data_process_float(rx_buffer, uart_rx_len, target_len, (float *)tar_buffer);
-        X_IN = tar_buffer[0];
-        Y_IN = tar_buffer[1];
-        uart_count = 0;
-        memset(rx_buffer, 0, strlen((const char*)rx_buffer));
-    }
-    HAL_UART_Receive_IT(&huart10, rx_buffer + uart_count, 1);
-    //标志位置一后，需要执行的任务
-    if (test_flag == 1)
-    {
-        four_add_pos[0] = Pid_Cal(&pid_x,X_IN);
-        four_add_pos[1] = Pid_Cal(&pid_y,Y_IN);
+          }
+          break;
+      case RECEIVE_DATA:
+          if (rx_buffer[rx_index] == ';')
+          {
+              UartRxState = DATA_READY;
 
-        four_cur_pos[0] = motor_pos[0];
-        four_cur_pos[1] = motor_pos[1];
-
-        four_tar_pos[0] = -four_add_pos[0] + four_cur_pos[0];
-        four_tar_pos[1] = four_add_pos[1] + four_cur_pos[1];
-
-        pos_speed_ctrl(&hfdcan1, 0, four_tar_pos[0], 0.3);
-        //pos_speed_ctrl(&hfdcan1, 1, four_tar_pos[1], 3);
-
-        test_flag = 0;//单次执行需要该语句
-    }
+          }
+          else
+          {
+              rx_index++;
+              if (rx_index > sizeof(rx_buffer))
+              {
+                  rx_index = 0;
+                  return;
+              }
+          }
+          break;
+      case DATA_READY:
+          break;
+      
+  }
+  HAL_UART_Receive_IT(&huart10, rx_buffer + rx_index, 1);
   /* USER CODE END USART10_IRQn 1 */
 }
 
