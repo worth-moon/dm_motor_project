@@ -81,10 +81,10 @@ volatile uint8_t task_cmd;
 float first_point_one[2];
 	// ...existing code...
 #define SECOND_POINT_NUM 8
-#define POS_ERR_TH 0.002f // ÔÊÐíµÄÎó²îãÐÖµ£¬¸ù¾ÝÊµ¼ÊÐèÇóµ÷Õû
+#define POS_ERR_TH 0.002f // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 float second_points[SECOND_POINT_NUM][2];
 uint8_t second_point_index = 0;
-uint8_t second_point_count = 0; // ÐÂÔö£¬¼ÇÂ¼ÒÑ±ê¼ÇµãÊý
+uint8_t second_point_count = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ñ±ï¿½Çµï¿½ï¿½ï¿½
 uint8_t enable_flag;
 // ...existing code...
 /* USER CODE END PV */
@@ -137,18 +137,19 @@ int main(void)
   MX_DMA_Init();
   MX_FDCAN1_Init();
   MX_USB_DEVICE_Init();
-  MX_TIM3_Init(); //10msÒ»´ÎµÄÐÄÌø¶¨Ê±Æ÷
+  MX_TIM3_Init();
   MX_ADC1_Init();
   MX_SPI1_Init();
   MX_UART7_Init();
+  MX_USART10_UART_Init();
   /* USER CODE BEGIN 2 */
-	delay_init(480);//²»¼Ó³ÌÐò»á¿¨ËÀ
-	can_bsp_init();//canÂË²¨Æ÷ºÍ¿ªÆôÍâÉè
-	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);//XT30+CAN ¿É¿Ø¿ª¹Ø1
-	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN ¿É¿Ø¿ª¹Ø2
+	delay_init(480);//ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½á¿¨ï¿½ï¿½
+	can_bsp_init();//canï¿½Ë²ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);//XT30+CAN ï¿½É¿Ø¿ï¿½ï¿½ï¿½1
+	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN ï¿½É¿Ø¿ï¿½ï¿½ï¿½2
 	delay_ms(1000);
 	
-  mc_init(); //µç»úÏµÍ³³õÊ¼»¯£¬¿ªÆôËùÓÐµç»ú
+  mc_init(); //ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½
 
 
   //rx_cmd = 0;
@@ -163,7 +164,7 @@ int main(void)
     {
         switch (task_cmd)
         {
-            case 0xf1: // µç»úÊ§ÄÜ
+            case 0xf1: // ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
             {
                 enable_flag = 0;
                 motor_disable(&hfdcan1, 0);
@@ -171,7 +172,7 @@ int main(void)
                 break;
             }
     
-            case 0x11: // µÚÒ»ÎÊ±êµã
+            case 0x11: // ï¿½ï¿½Ò»ï¿½Ê±ï¿½ï¿½
             {
                 first_point_one[0] = motor_pos[0];
                 first_point_one[1] = motor_pos[1];
@@ -179,7 +180,7 @@ int main(void)
                 break;
             }
     
-            case 0x12: // µÚÒ»ÎÊÖ´ÐÐ
+            case 0x12: // ï¿½ï¿½Ò»ï¿½ï¿½Ö´ï¿½ï¿½
             {
                 enable_flag = 1;
                 motor_enable(&hfdcan1, 0);
@@ -190,39 +191,39 @@ int main(void)
                 break;
             }
     
-            case 0x21: // µÚ¶þÎÊ±êµã
+            case 0x21: // ï¿½Ú¶ï¿½ï¿½Ê±ï¿½ï¿½
             {
-                // ±ê¼Çµ±Ç°µãµ½Êý×é
+                // ï¿½ï¿½Çµï¿½Ç°ï¿½ãµ½ï¿½ï¿½ï¿½ï¿½
                 second_points[second_point_index][0] = motor_pos[0];
                 second_points[second_point_index][1] = motor_pos[1];
                 second_point_index++;
                 if (second_point_index >= SECOND_POINT_NUM)
-                    second_point_index = 0; // Òç³ö´ÓÍ·¿ªÊ¼
+                    second_point_index = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½Ê¼
                 if (second_point_count < SECOND_POINT_NUM)
-                    second_point_count++; // Ö»ÔÚÎ´ÂúÊ±µÝÔö
+                    second_point_count++; // Ö»ï¿½ï¿½Î´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
                 break;
             }
     
-            case 0x22: // µÚ¶þÎÊÖ´ÐÐ
+            case 0x22: // ï¿½Ú¶ï¿½ï¿½ï¿½Ö´ï¿½ï¿½
             {
                 enable_flag = 1;
                 motor_enable(&hfdcan1, 0);
                 motor_enable(&hfdcan1, 1);
     
-                // Ö»Ö´ÐÐÒÑ±ê¼ÇµÄµã
+                // Ö»Ö´ï¿½ï¿½ï¿½Ñ±ï¿½ÇµÄµï¿½
                 for (uint8_t i = 0; i < second_point_count; i++)
                 {
                     pos_speed_ctrl(&hfdcan1, 0, second_points[i][0], 3);
                     pos_speed_ctrl(&hfdcan1, 1, second_points[i][1], 3);
     
-                    // µÈ´ýµ½´ïÄ¿±êµã
+                    // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½
                     while (1)
                     {
                         float err0 = fabs(motor_pos[0] - second_points[i][0]);
                         float err1 = fabs(motor_pos[1] - second_points[i][1]);
                         if (err0 < POS_ERR_TH && err1 < POS_ERR_TH)
                             break;
-                        delay_ms(10); // Ã¿¸ô10ms¼ì²âÒ»´Î
+                        delay_ms(10); // Ã¿ï¿½ï¿½10msï¿½ï¿½ï¿½Ò»ï¿½ï¿½
                     }
                 }
                 break;
@@ -239,7 +240,7 @@ int main(void)
     }
     // ...existing code...
     // ...existing code...
-      /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
