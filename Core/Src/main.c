@@ -75,6 +75,18 @@ volatile float tar_buffer[20];
 volatile uint8_t shijiao_rx_data[5];
 volatile uint8_t shijiao_display_data;
 
+
+uint8_t rx_cmd[50];
+volatile uint8_t task_cmd;
+float first_point_one[2];
+	// ...existing code...
+#define SECOND_POINT_NUM 8
+#define POS_ERR_TH 0.002f // 允许的误差阈值，根据实际需求调整
+float second_points[SECOND_POINT_NUM][2];
+uint8_t second_point_index = 0;
+uint8_t second_point_count = 0; // 新增，记录已标记点数
+uint8_t enable_flag;
+// ...existing code...
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,25 +146,99 @@ int main(void)
 	can_bsp_init();//can滤波器和开启外设
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);//XT30+CAN 可控开关1
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN 可控开关2
-	HAL_Delay(1000);
+	delay_ms(1000);
 	
   mc_init(); //电机系统初始化，开启所有电机
-  //motor_change_work_mode(&hfdcan1,3,MOTOR_MODE_POSITION_SPEED);
-  HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
+
+
+  //rx_cmd = 0;
+  HAL_UART_Receive_IT(&huart7, rx_cmd, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  CDC_Transmit_HS((uint8_t *)&shijiao_display_data,1);
-	  //HAL_UART_Transmit(&huart7,&shijiao_display_data,1,1000);
-	  delay_ms(500);
-//	  extern volatile float t_output[6];
-//	  vofa_send_data(0,t_output[0]);
-//	  vofa_send_data(1,t_output[1]);
-//	  vofa_send_data(2,t_output[2]);
-//	  vofa_sendframetail();
+    if (task_cmd)
+    {
+        switch (task_cmd)
+        {
+            case 0xf1: // 电机失能
+            {
+                enable_flag = 0;
+                motor_disable(&hfdcan1, 0);
+                motor_disable(&hfdcan1, 1);
+                break;
+            }
+    
+            case 0x11: // 第一问标点
+            {
+                first_point_one[0] = motor_pos[0];
+                first_point_one[1] = motor_pos[1];
+                // question_one_mark_point(rx_task_buffer);
+                break;
+            }
+    
+            case 0x12: // 第一问执行
+            {
+                enable_flag = 1;
+                motor_enable(&hfdcan1, 0);
+                motor_enable(&hfdcan1, 1);
+                pos_speed_ctrl(&hfdcan1, 0, first_point_one[0], 3);
+                pos_speed_ctrl(&hfdcan1, 1, first_point_one[1], 3);
+                // question_one_perform(rx_task_buffer);
+                break;
+            }
+    
+            case 0x21: // 第二问标点
+            {
+                // 标记当前点到数组
+                second_points[second_point_index][0] = motor_pos[0];
+                second_points[second_point_index][1] = motor_pos[1];
+                second_point_index++;
+                if (second_point_index >= SECOND_POINT_NUM)
+                    second_point_index = 0; // 溢出从头开始
+                if (second_point_count < SECOND_POINT_NUM)
+                    second_point_count++; // 只在未满时递增
+                break;
+            }
+    
+            case 0x22: // 第二问执行
+            {
+                enable_flag = 1;
+                motor_enable(&hfdcan1, 0);
+                motor_enable(&hfdcan1, 1);
+    
+                // 只执行已标记的点
+                for (uint8_t i = 0; i < second_point_count; i++)
+                {
+                    pos_speed_ctrl(&hfdcan1, 0, second_points[i][0], 3);
+                    pos_speed_ctrl(&hfdcan1, 1, second_points[i][1], 3);
+    
+                    // 等待到达目标点
+                    while (1)
+                    {
+                        float err0 = fabs(motor_pos[0] - second_points[i][0]);
+                        float err1 = fabs(motor_pos[1] - second_points[i][1]);
+                        if (err0 < POS_ERR_TH && err1 < POS_ERR_TH)
+                            break;
+                        delay_ms(10); // 每隔10ms检测一次
+                    }
+                }
+                break;
+            }
+    
+            // ...existing code...
+    
+            default:
+            {
+                break;
+            }
+        }
+        task_cmd = 0;
+    }
+    // ...existing code...
+    // ...existing code...
       /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -220,91 +306,28 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// ...existing code...
-
-// 全局变量定义
-uint8_t work_flag = 0; // 0: 录制模式，1: 执行模式
-float shijiao_jxb_buffer[8][5] = {0}; // 8组，每组5个电机
-extern float motor_pos[]; // motor_pos在can_bsp.c中定义
-extern hcan_t hfdcan1;    // CAN句柄
-
-void shijiao_logic_handle(void)
-{
-    switch(shijiao_display_data)
-    {
-        case 0x00:
-        case 0x01:
-        case 0x02:
-        case 0x03:
-        case 0x04:
-        case 0x05:
-        case 0x06:
-            if(work_flag == 0)
-            {
-                // 录制模式：保存当前位置
-                for(int i = 0; i < 5; i++)
-                {
-                    shijiao_jxb_buffer[shijiao_display_data][i] = motor_pos[i];
-                }
-            }
-            else
-            {
-                // 执行模式：运动到目标位置
-                for(int i = 0; i < 5; i++)
-                {
-                    pos_speed_ctrl(&hfdcan1, i, shijiao_jxb_buffer[shijiao_display_data][i], 1.0f);
-                }
-            }
-            break;
-        case 0x07:
-            // 切换模式
-            if(work_flag == 0)
-            {
-                // 切换到执行模式
-                for(int i = 0; i < 5; i++)
-                {
-                    motor_change_work_mode(&hfdcan1, i, MOTOR_MODE_POSITION_SPEED);
-                }
-                work_flag = 1;
-            }
-            else
-            {
-                // 切换到录制模式
-                for(int i = 0; i < 5; i++)
-                {
-                    motor_change_work_mode(&hfdcan1, i, MOTOR_MODE_MIT);
-                }
-				motor_change_work_mode(&hfdcan1, 3, MOTOR_MODE_POSITION_SPEED);
-                work_flag = 0;
-            }
-            break;
-        default:
-            // 其他情况
-            break;
-    }
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
-{
-	if(huart->Instance == UART7)
-	{
-
-	}
-}
 
 void UART7_IRQHandler(void)
 {
   /* USER CODE BEGIN UART7_IRQn 0 */
-
   /* USER CODE END UART7_IRQn 0 */
-  HAL_UART_IRQHandler(&huart7);
+	HAL_UART_IRQHandler(&huart7);
   /* USER CODE BEGIN UART7_IRQn 1 */
-	shijiao_display_data = shijiao_rx_data[0];
-	shijiao_logic_handle();
-	HAL_UART_Receive_IT(&huart7, (uint8_t *)shijiao_rx_data, 1);
+	task_cmd = rx_cmd[0];
+	HAL_UART_Receive_IT(&huart7, rx_cmd, 1);
   /* USER CODE END UART7_IRQn 1 */
 }
-// ...existing code...
+
+void USART10_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART10_IRQn 0 */
+  
+  /* USER CODE END USART10_IRQn 0 */
+  HAL_UART_IRQHandler(&huart10);
+  /* USER CODE BEGIN USART10_IRQn 1 */
+  
+  /* USER CODE END USART10_IRQn 1 */
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */

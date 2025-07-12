@@ -141,12 +141,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 	}
 }
 /*============================== 以此为界，上半部分为CAN外设的二级配置，主要是滤波器配置，开启CAN外设，调通基础的can发送和can接收，并且在fifo0的接收中断调用下列的数据处理函数 ==============================*/
-// 电机系统配置宏定义
-#define MAX_MOTOR_COUNT 10
-#define MOTOR_ID_COUNT 5  // 实际使用的电机数量
+
 
 // 电机ID映射表 - 集中管理，便于修改
-const uint8_t MOTOR_ID_MAP[MOTOR_ID_COUNT] = {0x01, 0x03, 0x05, 0x07, 0x09};
+const uint8_t MOTOR_ID_MAP[MOTOR_ID_COUNT] = {0x11, 0x12};
 
 // 数据变量定义
 uint16_t v_int, t_int;

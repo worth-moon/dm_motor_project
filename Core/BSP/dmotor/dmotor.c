@@ -16,7 +16,7 @@
 
 
 // 电机CAN ID映射表 - 基础ID，控制模式会在此基础上加偏移
-const uint16_t MOTOR_CAN_ID_MAP[MOTOR_ID_COUNT] = {0x00, 0x02, 0x04, 0x06, 0x08};
+const uint16_t MOTOR_CAN_ID_MAP[MOTOR_ID_COUNT] = {0x01,0x02};
 
 // 电机使能/失能命令数据
 const uint8_t MOTOR_ENABLE_DATA[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};
@@ -39,7 +39,7 @@ void motor_enable(hcan_t* hcan, uint8_t motor_index)
     
     uint16_t can_id = MOTOR_CAN_ID_MAP[motor_index];
     fdcanx_send_data(hcan, can_id, (uint8_t*)MOTOR_ENABLE_DATA, 8);
-    HAL_Delay(10);  // 建议的延时
+    //HAL_Delay(10);  // 建议的延时
 }
 
 // 单个电机失能 - 基于索引
@@ -53,7 +53,7 @@ void motor_disable(hcan_t* hcan, uint8_t motor_index)
     
     uint16_t can_id = MOTOR_CAN_ID_MAP[motor_index];
     fdcanx_send_data(hcan, can_id, (uint8_t*)MOTOR_DISABLE_DATA, 8);
-    HAL_Delay(10);  // 建议的延时
+    //HAL_Delay(10);  // 建议的延时
 }
 
 // 批量电机使能
