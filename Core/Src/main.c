@@ -51,10 +51,10 @@
 #include "pid.h"
 
 #include <stdio.h>
-#include <string.h>         // °üº¬memsetº¯ÊýÍ·ÎÄ¼þ
-#include <ctype.h>          // °üº¬isalphaº¯ÊýÍ·ÎÄ¼þ
-#include <stdlib.h>         // °üº¬strtofº¯ÊýÍ·ÎÄ¼þ
-#include <stdio.h>          // °üº¬printfº¯ÊýÍ·ÎÄ¼þ
+#include <string.h>         // ï¿½ï¿½ï¿½ï¿½memsetï¿½ï¿½ï¿½ï¿½Í·ï¿½Ä¼ï¿½
+#include <ctype.h>          // ï¿½ï¿½ï¿½ï¿½isalphaï¿½ï¿½ï¿½ï¿½Í·ï¿½Ä¼ï¿½
+#include <stdlib.h>         // ï¿½ï¿½ï¿½ï¿½strtofï¿½ï¿½ï¿½ï¿½Í·ï¿½Ä¼ï¿½
+#include <stdio.h>          // ï¿½ï¿½ï¿½ï¿½printfï¿½ï¿½ï¿½ï¿½Í·ï¿½Ä¼ï¿½
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,10 +89,10 @@ volatile uint8_t task_cmd;
 float first_point_one[2];
 	// ...existing code...
 #define SECOND_POINT_NUM 8
-#define POS_ERR_TH 0.002f // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
+#define POS_ERR_TH 0.002f // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½?
 float second_points[SECOND_POINT_NUM][2];
 uint8_t second_point_index = 0;
-uint8_t second_point_count = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ñ±ï¿½Çµï¿½ï¿½ï¿?
+uint8_t second_point_count = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Ñ±ï¿½Çµï¿½ï¿½ï¿½?
 uint8_t enable_flag=1;
 
 volatile float four_cur_pos[2],four_tar_pos[2],four_add_pos[2];
@@ -175,8 +175,9 @@ int main(void)
   MX_SPI1_Init();
   MX_UART7_Init();
   MX_USART10_UART_Init();
+  MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
-	delay_init(480);//ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½á¿¨ï¿½ï¿?
+	delay_init(480);//ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½á¿¨ï¿½ï¿½?
 	can_bsp_init();//canï¿½Ë²ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_14,1);//XT30+CAN ï¿½É¿Ø¿ï¿½ï¿½ï¿½1
 	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,1);//XT30+CAN ï¿½É¿Ø¿ï¿½ï¿½ï¿½2
@@ -190,6 +191,10 @@ int main(void)
   Pid_Init(&pid_y,0.00075,0,0.000,0,0.033f,3.14f);
   HAL_UART_Receive_IT(&huart7, rx_cmd, 1);
   HAL_UART_Receive_IT(&huart10, rx_buffer + rx_index, 1);
+  
+  HAL_TIM_Base_Start(&htim12);
+  HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_2);
+  TIM12->CCR2 = 0; 
 
   //HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
   /* USER CODE END 2 */
@@ -202,7 +207,7 @@ int main(void)
     {
         switch (task_cmd)
         {
-            case 0xf1: // ï¿½ï¿½ï¿½Ê§ï¿½ï¿?
+            case 0xf1: // ï¿½ï¿½ï¿½Ê§ï¿½ï¿½?
             {
                 enable_flag = 0;
                 motor_disable(&hfdcan1, 0);
@@ -210,7 +215,7 @@ int main(void)
                 break;
             }
     
-            case 0x11: // ï¿½ï¿½Ò»ï¿½Ê±ï¿½ï¿?
+            case 0x11: // ï¿½ï¿½Ò»ï¿½Ê±ï¿½ï¿½?
             {
                 first_point_one[0] = motor_pos[0];
                 first_point_one[1] = motor_pos[1];
@@ -229,14 +234,14 @@ int main(void)
                 break;
             }
     
-            case 0x21: // ï¿½Ú¶ï¿½ï¿½Ê±ï¿½ï¿?
+            case 0x21: // ï¿½Ú¶ï¿½ï¿½Ê±ï¿½ï¿½?
             {
-                // ï¿½ï¿½Çµï¿½Ç°ï¿½ãµ½ï¿½ï¿½ï¿½ï¿?
+                // ï¿½ï¿½Çµï¿½Ç°ï¿½ãµ½ï¿½ï¿½ï¿½ï¿½?
                 second_points[second_point_index][0] = motor_pos[0];
                 second_points[second_point_index][1] = motor_pos[1];
                 second_point_index++;
                 if (second_point_index >= SECOND_POINT_NUM)
-                    second_point_index = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½Ê?
+                    second_point_index = 0; // ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½?
                 if (second_point_count < SECOND_POINT_NUM)
                     second_point_count++; // Ö»ï¿½ï¿½Î´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
                 break;
@@ -248,20 +253,20 @@ int main(void)
                 motor_enable(&hfdcan1, 0);
                 motor_enable(&hfdcan1, 1);
     
-                // Ö»Ö´ï¿½ï¿½ï¿½Ñ±ï¿½ÇµÄµï¿?
+                // Ö»Ö´ï¿½ï¿½ï¿½Ñ±ï¿½ÇµÄµï¿½?
                 for (uint8_t i = 0; i < second_point_count; i++)
                 {
                     pos_speed_ctrl(&hfdcan1, 0, second_points[i][0], 3);
                     pos_speed_ctrl(&hfdcan1, 1, second_points[i][1], 3);
     
-                    // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿?
+                    // ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½?
                     while (1)
                     {
                         float err0 = fabs(motor_pos[0] - second_points[i][0]);
                         float err1 = fabs(motor_pos[1] - second_points[i][1]);
                         if (err0 < POS_ERR_TH && err1 < POS_ERR_TH)
                             break;
-                        delay_ms(10); // Ã¿ï¿½ï¿½10msï¿½ï¿½ï¿½Ò»ï¿½ï¿?
+                        delay_ms(10); // Ã¿ï¿½ï¿½10msï¿½ï¿½ï¿½Ò»ï¿½ï¿½?
                     }
                 }
                 break;
@@ -355,7 +360,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void Uart_Data_Process(void)
 {
-    // Êý¾Ý½âÎö
+    // ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½
     if (UartRxState == DATA_READY)
     {
         uint8_t parse_len = rx_index + 1;
@@ -365,7 +370,7 @@ void Uart_Data_Process(void)
         char* end;
         int i = 0;
 
-        // Ìø¹ý¿ªÍ·µÄ '#'
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ '#'
         char* temp_ptr = strchr(ptr, '#');
         if (temp_ptr != NULL)
         {
@@ -373,11 +378,11 @@ void Uart_Data_Process(void)
         }
         else
         {
-            // Î´ÕÒµ½ '#' Çé¿öÏÂµÄ´¦Àí
+            // Î´ï¿½Òµï¿½ '#' ï¿½ï¿½ï¿½ï¿½ÂµÄ´ï¿½ï¿½ï¿½
             rx_index = 0;
             memset(rx_buffer, 0, sizeof(rx_buffer));
             memset(parse_buffer, 0, sizeof(parse_buffer));
-            HAL_UART_Receive_IT(&huart7, rx_buffer + rx_index, 1);  // È·±£ÔÙ´ÎÆôÓÃ½ÓÊÕÖÐ¶Ï
+            HAL_UART_Receive_IT(&huart7, rx_buffer + rx_index, 1);  // È·ï¿½ï¿½ï¿½Ù´ï¿½ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
 
         }
 
@@ -386,10 +391,10 @@ void Uart_Data_Process(void)
             return;
         }
 
-        // ½âÎö¸¡µãÊý
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         while (*ptr && i < 2)
         {
-            while (isalpha(*ptr)) ptr++;  // Ìø¹ý×ÖÄ¸
+            while (isalpha(*ptr)) ptr++;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸
 
             values[i] = strtof(ptr, &end);
             if (ptr == end) break;
@@ -397,17 +402,17 @@ void Uart_Data_Process(void)
             ptr = end;
             i++;
 
-            // Ìø¹ý¶ººÅ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             while (*ptr == ',') ptr++;
         }
 
-        // ´¦Àí½âÎöºóµÄÊý¾Ý
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         // for (int j = 0; j < i; j++)
         // {
         //     //printf("Value %c: %f\n", 'A' + j, values[j]);
         // }
 
-        // ÖØÖÃ×´Ì¬
+        // ï¿½ï¿½ï¿½ï¿½×´Ì¬
         rx_index = 0;
         memset(rx_buffer, 0, sizeof(rx_buffer));
 
