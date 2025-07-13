@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,ARM_MATH_LOOPUNROLL</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Drivers/CMSIS/DSP/Include;../Core/BSP/can;../Core/BSP/delay;../Core/BSP/dmotor;../Core/BSP/mc;../Core/BSP/fast_sin;../Core/BSP/openmv;../Core/BSP/pid;../Core/BSP/rc;../Core/BSP/vofa;../Core/BSP/debug_printf;..\Core\BSP\ws2812</IncludePath>
+              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Drivers/CMSIS/DSP/Include;../Core/BSP/can;../Core/BSP/delay;../Core/BSP/dmotor;../Core/BSP/mc;../Core/BSP/fast_sin;../Core/BSP/openmv;../Core/BSP/pid;../Core/BSP/rc;../Core/BSP/vofa;../Core/BSP/debug_printf;..\Core\BSP\ws2812;..\Core\BSP\w25q64</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1215,6 +1215,21 @@
               <FileName>ws2812.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Core\BSP\ws2812\ws2812.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BSP/W25Q64</GroupName>
+          <Files>
+            <File>
+              <FileName>w25q64.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\BSP\w25q64\w25q64.c</FilePath>
+            </File>
+            <File>
+              <FileName>w25q64.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Core\BSP\w25q64\w25q64.h</FilePath>
             </File>
           </Files>
         </Group>

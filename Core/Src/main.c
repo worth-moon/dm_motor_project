@@ -53,8 +53,9 @@
 #include <string.h>         // ����memset����ͷ�ļ�
 #include <ctype.h>          // ����isalpha����ͷ�ļ�
 #include <stdlib.h>         // ����strtof����ͷ�ļ�
-#include <stdio.h>          // ����printf����ͷ�ļ�
+#include <stdio.h>          // ����my_printf����ͷ�ļ�
 #include "ws2812.h"
+#include "w25q64.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -413,7 +414,7 @@ void Uart_Data_Process(void)
         // ��������������
         // for (int j = 0; j < i; j++)
         // {
-        //     //printf("Value %c: %f\n", 'A' + j, values[j]);
+        //     //my_printf("Value %c: %f\n", 'A' + j, values[j]);
         // }
 
         // ����״̬
@@ -500,10 +501,46 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
   if(huart == &huart10)
   {
-
+	
   }
 }
 
+/***************************************************
+ * 函数名: W25Q64_Quick_Test
+ * 功  能: 最简单的测试，只测试几个字节
+ ***************************************************/
+int8_t W25Q64_Quick_Test(void)
+{
+    uint8_t write_data[4] = {0x11, 0x22, 0x33, 0x44};
+    uint8_t read_data[4] = {0};
+    
+    // 擦除->写入->读取->比较
+    if (OSPI_W25Qxx_SectorErase(0x1000) != OSPI_W25Qxx_OK) {
+        my_printf("擦除失败\r\n");
+        return -1;
+    }
+    
+    if (OSPI_W25Qxx_WriteBuffer(write_data, 0x1000, 4) != OSPI_W25Qxx_OK) {
+        my_printf("写入失败\r\n");
+        return -1;
+    }
+    
+    if (OSPI_W25Qxx_ReadBuffer(read_data, 0x1000, 4) != OSPI_W25Qxx_OK) {
+        my_printf("读取失败\r\n");
+        return -1;
+    }
+    
+    // 比较数据
+    for (int i = 0; i < 4; i++) {
+        if (write_data[i] != read_data[i]) {
+            my_printf("数据不匹配\r\n");
+            return -1;
+        }
+    }
+    
+    my_printf("快速测试通过!\r\n");
+    return OSPI_W25Qxx_OK;
+}
 
 /* USER CODE END 4 */
 
@@ -563,7 +600,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     ex: my_printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

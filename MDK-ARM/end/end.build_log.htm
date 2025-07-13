@@ -27,7 +27,92 @@ Project File Date:  07/13/2025
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'E:\KEIL\ARM\ARMCLANG\Bin'
 Build target 'end'
-"end\end.axf" - 0 Error(s), 0 Warning(s).
+../Core/Src/main.c(519): error: call to undeclared function 'my_printf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  519 |         my_printf("擦除失败\r\n");
+      |         ^
+../Core/Src/main.c(519): note: did you mean '_printf'?
+E:\KEIL\ARM\ARMCLANG\bin\..\include\stdio.h(410): note: '_printf' declared here
+  410 | extern _ARMABI int _printf(const char * __restrict /*format*/, ...) __attribute__((__nonnull__(1)));
+      |                    ^
+../Core/Src/main.c(524): error: call to undeclared function 'my_printf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  524 |         my_printf("写入失败\r\n");
+      |         ^
+../Core/Src/main.c(529): error: call to undeclared function 'my_printf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  529 |         my_printf("读取失败\r\n");
+      |         ^
+../Core/Src/main.c(536): error: call to undeclared function 'my_printf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  536 |             my_printf("数据不匹配\r\n");
+      |             ^
+../Core/Src/main.c(541): error: call to undeclared function 'my_printf'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  541 |     my_printf("快速测试通过!\r\n");
+      |     ^
+5 errors generated.
+compiling main.c...
+../Core/BSP/w25q64/w25q64.c(3): error: unknown type name 'OSPI_HandleTypeDef'; did you mean 'SPI_HandleTypeDef'?
+    3 | extern OSPI_HandleTypeDef hospi2;
+      |        ^~~~~~~~~~~~~~~~~~
+      |        SPI_HandleTypeDef
+../Drivers/STM32H7xx_HAL_Driver/Inc\stm32h7xx_hal_spi.h(223): note: 'SPI_HandleTypeDef' declared here
+  223 | } SPI_HandleTypeDef;
+      |   ^
+../Core/BSP/w25q64/w25q64.c(43): error: use of undeclared identifier 'OSPI_RegularCmdTypeDef'
+   43 |     OSPI_RegularCmdTypeDef  sCommand;           // OSPI<B4><AB><CA><E4><C5><E4><D6><C3>
+      |     ^
+../Core/BSP/w25q64/w25q64.c(44): error: use of undeclared identifier 'OSPI_AutoPollingTypeDef'
+   44 |     OSPI_AutoPollingTypeDef sConfig;                    // <C2><D6>ѯ<B1>Ƚ<CF><CF><E0><B9><D8><C5><E4><D6>ò<CE><CA><FD>
+      |     ^
+../Core/BSP/w25q64/w25q64.c(46): error: use of undeclared identifier 'sCommand'
+   46 |     sCommand.OperationType      = HAL_OSPI_OPTYPE_COMMON_CFG;         // ͨ<D3><C3><C5><E4><D6><C3>
+      |     ^
+../Core/BSP/w25q64/w25q64.c(46): error: use of undeclared identifier 'HAL_OSPI_OPTYPE_COMMON_CFG'
+   46 |     sCommand.OperationType      = HAL_OSPI_OPTYPE_COMMON_CFG;         // ͨ<D3><C3><C5><E4><D6><C3>
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(47): error: use of undeclared identifier 'sCommand'
+   47 |     sCommand.FlashId            = HAL_OSPI_FLASH_ID_1;                // flash ID
+      |     ^
+../Core/BSP/w25q64/w25q64.c(47): error: use of undeclared identifier 'HAL_OSPI_FLASH_ID_1'
+   47 |     sCommand.FlashId            = HAL_OSPI_FLASH_ID_1;                // flash ID
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(48): error: use of undeclared identifier 'sCommand'
+   48 |     sCommand.InstructionMode    = HAL_OSPI_INSTRUCTION_1_LINE;        // 1<CF><DF>ָ<C1><EE>ģʽ
+      |     ^
+../Core/BSP/w25q64/w25q64.c(48): error: use of undeclared identifier 'HAL_OSPI_INSTRUCTION_1_LINE'
+   48 |     sCommand.InstructionMode    = HAL_OSPI_INSTRUCTION_1_LINE;        // 1<CF><DF>ָ<C1><EE>ģʽ
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(49): error: use of undeclared identifier 'sCommand'
+   49 |     sCommand.InstructionSize    = HAL_OSPI_INSTRUCTION_8_BITS;        // ָ<C1><U+ECE4><B6><C8>8λ
+      |     ^
+../Core/BSP/w25q64/w25q64.c(49): error: use of undeclared identifier 'HAL_OSPI_INSTRUCTION_8_BITS'
+   49 |     sCommand.InstructionSize    = HAL_OSPI_INSTRUCTION_8_BITS;        // ָ<C1><U+ECE4><B6><C8>8λ
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(50): error: use of undeclared identifier 'sCommand'
+   50 |     sCommand.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;   // <BD><FB>ָֹ<C1><EE>DTRģʽ
+      |     ^
+../Core/BSP/w25q64/w25q64.c(50): error: use of undeclared identifier 'HAL_OSPI_INSTRUCTION_DTR_DISABLE'
+   50 |     sCommand.InstructionDtrMode = HAL_OSPI_INSTRUCTION_DTR_DISABLE;   // <BD><FB>ָֹ<C1><EE>DTRģʽ
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(51): error: use of undeclared identifier 'sCommand'
+   51 |     sCommand.Address            = 0x0;                                // <B5><D8>ַ0
+      |     ^
+../Core/BSP/w25q64/w25q64.c(52): error: use of undeclared identifier 'sCommand'
+   52 |     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;              // <CE><U+07B5><D8>ַģʽ
+      |     ^
+../Core/BSP/w25q64/w25q64.c(52): error: use of undeclared identifier 'HAL_OSPI_ADDRESS_NONE'
+   52 |     sCommand.AddressMode        = HAL_OSPI_ADDRESS_NONE;              // <CE><U+07B5><D8>ַģʽ
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(53): error: use of undeclared identifier 'sCommand'
+   53 |     sCommand.AddressSize        = HAL_OSPI_ADDRESS_24_BITS;           // <B5><D8>ַ<B3><A4><B6><C8>24λ
+      |     ^
+../Core/BSP/w25q64/w25q64.c(53): error: use of undeclared identifier 'HAL_OSPI_ADDRESS_24_BITS'
+   53 |     sCommand.AddressSize        = HAL_OSPI_ADDRESS_24_BITS;           // <B5><D8>ַ<B3><A4><B6><C8>24λ
+      |                                   ^
+../Core/BSP/w25q64/w25q64.c(54): error: use of undeclared identifier 'sCommand'
+   54 |     sCommand.AddressDtrMode     = HAL_OSPI_ADDRESS_DTR_DISABLE;       // <BD><FB>ֹ<B5><D8>ַDTRģʽ
+      |     ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+compiling w25q64.c...
+"end\end.axf" - 24 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +135,8 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:01
+Target not created.
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
