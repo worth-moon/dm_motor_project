@@ -1,5 +1,5 @@
-end/stm32h7xx_hal_spi.o: \
-  ..\Drivers\STM32H7xx_HAL_Driver\Src\stm32h7xx_hal_spi.c \
+end/stm32h7xx_hal_ospi.o: \
+  ..\Drivers\STM32H7xx_HAL_Driver\Src\stm32h7xx_hal_ospi.c \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \

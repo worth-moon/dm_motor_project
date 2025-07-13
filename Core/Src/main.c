@@ -21,6 +21,7 @@
 #include "dma.h"
 #include "fdcan.h"
 #include "memorymap.h"
+#include "octospi.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -56,6 +57,7 @@
 #include <stdio.h>          // ����my_printf����ͷ�ļ�
 #include "ws2812.h"
 #include "w25q64.h"
+#include "debug_printf.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -133,6 +135,7 @@ static void MPU_Config(void);
 extern uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len);
 void robot_arm(float X, float Y);
 void Uart_Data_Process(void);
+int8_t W25Q64_Quick_Test(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -181,6 +184,7 @@ int main(void)
   MX_USART10_UART_Init();
   MX_TIM12_Init();
   MX_SPI6_Init();
+  MX_OCTOSPI2_Init();
   /* USER CODE BEGIN 2 */
 	delay_init(480);//���ӳ���Ῠ��?
 	can_bsp_init();//can�˲����Ϳ�������
@@ -201,6 +205,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_2);
 	TIM12->CCR2 = 00; 
 	WS2812_Ctrl(128,128,0);
+	W25Q64_Quick_Test();
   //HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
   /* USER CODE END 2 */
 

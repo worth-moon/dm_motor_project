@@ -5,6 +5,7 @@
 "end\dma.o"
 "end\fdcan.o"
 "end\memorymap.o"
+"end\octospi.o"
 "end\spi.o"
 "end\tim.o"
 "end\usart.o"
@@ -34,6 +35,7 @@
 "end\stm32h7xx_hal_i2c_ex.o"
 "end\stm32h7xx_hal_exti.o"
 "end\stm32h7xx_hal_fdcan.o"
+"end\stm32h7xx_hal_ospi.o"
 "end\stm32h7xx_hal_spi.o"
 "end\stm32h7xx_hal_spi_ex.o"
 "end\stm32h7xx_hal_tim.o"
@@ -55,6 +57,7 @@
 "end\openmv.o"
 "end\debug_printf.o"
 "end\ws2812.o"
+"end\w25q64.o"
 --library_type=microlib --strict --scatter "end\end.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
