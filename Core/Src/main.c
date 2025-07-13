@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
 #include "dma.h"
 #include "fdcan.h"
 #include "memorymap.h"
@@ -55,6 +54,7 @@
 #include <ctype.h>          // ����isalpha����ͷ�ļ�
 #include <stdlib.h>         // ����strtof����ͷ�ļ�
 #include <stdio.h>          // ����printf����ͷ�ļ�
+#include "ws2812.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -118,6 +118,10 @@ uint8_t parse_buffer[rx_buffer_num];
 uint8_t rx_task_index = 0;
 uint8_t rx_task_buffer[rx_task_buffer_num] = {0};
 
+
+uint8_t r = 0;
+uint8_t g = 0;
+uint8_t b = 0;
 // ...existing code...
 /* USER CODE END PV */
 
@@ -171,11 +175,11 @@ int main(void)
   MX_FDCAN1_Init();
   MX_USB_DEVICE_Init();
   MX_TIM3_Init();
-  MX_ADC1_Init();
   MX_SPI1_Init();
   MX_UART7_Init();
   MX_USART10_UART_Init();
   MX_TIM12_Init();
+  MX_SPI6_Init();
   /* USER CODE BEGIN 2 */
 	delay_init(480);//���ӳ���Ῠ��?
 	can_bsp_init();//can�˲����Ϳ�������
@@ -194,15 +198,15 @@ int main(void)
   
   HAL_TIM_Base_Start(&htim12);
   HAL_TIM_PWM_Start(&htim12,TIM_CHANNEL_2);
-  TIM12->CCR2 = 0; 
-
+	TIM12->CCR2 = 00; 
+	WS2812_Ctrl(128,128,0);
   //HAL_UART_Transmit(&huart10,(uint8_t *)"HELLO!",6,1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
+  {  
     if (task_cmd)
     {
         switch (task_cmd)
@@ -499,6 +503,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 
   }
 }
+
+
 /* USER CODE END 4 */
 
  /* MPU Configuration */
